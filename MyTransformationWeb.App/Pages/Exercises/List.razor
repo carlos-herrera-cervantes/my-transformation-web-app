@@ -1,0 +1,76 @@
+@page "/exercises"
+
+<div class="row">
+    <Nav></Nav>
+    <div>
+        <Header></Header>
+        <h2>Exercises</h2>
+        <div>
+            @if (exercises is null)
+            {
+                <Loader></Loader>
+            }
+            else
+            {
+                <table class="fl-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Creation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (exercises.Count() == 0)
+                        {
+                            <tr>
+                                <td colspan="3">No data</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var exercise in exercises)
+                            {
+                                <tr>
+                                    <td>@exercise.Name</td>
+                                    <td>@exercise.CreatedAt</td>
+                                    <td>
+                                        <NavLink href="@($"/exercises/1")">
+                                            <i class="fa fa-info-circle"></i> Detail
+                                        </NavLink>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private IEnumerable<Exercise> exercises = new List<Exercise>
+    {
+        new Exercise
+        {
+            Id = "65dbaacf3511e2df5eb04684",
+            Name = "Bench Press",
+            Image = "exercises/bench-press.jpg",
+            MuscleGroups = "pec, shoulders",
+        },
+        new Exercise
+        {
+            Id = "65dbb06744387b1bffd9450c",
+            Name = "Squat",
+            Image = "exercises/squat.jpg",
+            MuscleGroups = "legs",
+        },
+        new Exercise
+        {
+            Id = "65dbb13a2899bad853187b0a",
+            Name = "Military Press",
+            Image = "exercises/military-press.jpg",
+            MuscleGroups = "pec, shoulders",
+        }
+    };
+}

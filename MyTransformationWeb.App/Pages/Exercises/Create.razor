@@ -1,0 +1,42 @@
+@page "/exercise"
+
+<div class="row">
+    <Nav></Nav>
+    <div>
+        <Header></Header>
+        <h2>New exercise</h2>
+        <EditForm Model="exercise" OnValidSubmit="HandleValidSubmitAsync">
+            <div class="row-2">
+                <div>
+                    <div>
+                        <label class="form-label" for="name">Name</label>
+                        <InputText class="form-input" autocomplete="off" type="text" placeholder="name" id="name" @bind-Value="exercise.Name" />
+                    </div>
+                    <div>
+                        <label class="form-label" for="muscle_groups">Muscle Groups</label>
+                        <textarea class="form-input" placeholder="muscle groups" id="muscle_groups" @bind="exercise.MuscleGroups" />
+                    </div>
+                </div>
+                <div>
+                    <div>
+                        <label class="form-label" for="file"></label>
+                        <InputFile class="form-file" id="file" />
+                    </div>
+                    <div>
+                        <button class="form-button dark-background white-text" type="submit">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private Exercise exercise = new();
+
+    private void HandleValidSubmitAsync()
+    {
+        Console.WriteLine($"muscle groups: {exercise.MuscleGroups}");
+        Console.WriteLine($"name: {exercise.Name}");
+    }
+}
