@@ -1,0 +1,59 @@
+@page "/exercises/{id}"
+
+<div class="row">
+    <Nav></Nav>
+    <div>
+        <Header></Header>
+        <h2>Exercise detail</h2>
+        @if (exercise is null)
+        {
+            <Loader></Loader>
+        }
+        else
+        {
+            <EditForm Model="exercise" OnValidSubmit="HandleValidSubmit">
+                <div class="row-2">
+                    <div>
+                        <div>
+                            <label class="form-label" for="name">Name</label>
+                            <InputText class="form-input" type="text" placeholder="name" id="name" @bind-Value="exercise.Name" />
+                        </div>
+                        <div>
+                            <label class="form-label" for="muscle_groups">Muscle Groups</label>
+                            <textarea class="form-input" placeholder="muscle groups" id="muscle_groups" value="@exercise.MuscleGroups" />
+                        </div>
+                        <div>
+                            <button class="form-button dark-background white-text" type="submit">Submit</button>
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            <label class="form-label" for="created_at">Created At</label>
+                            <input class="form-input" type="text" id="created_at" @bind="exercise.CreatedAt" readonly />
+                        </div>
+                        <div>
+                            <label class="form-label" for="updated_at">Created At</label>
+                            <input class="form-input" type="text" id="updated_at" @bind="exercise.UpdatedAt" readonly />
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+        }
+    </div>
+</div>
+
+@code {
+    private Exercise exercise = new Exercise
+    {
+        Id = "65dbaacf3511e2df5eb04684",
+        Name = "Bench Press",
+        Image = "https://www.inspireusafoundation.org/wp-content/uploads/2022/05/barbell-pause-bench.gif",
+        MuscleGroups = "pec"
+    };
+
+    [Parameter]
+    public string Id { get; set; }
+
+    private async Task HandleValidSubmit()
+    {}
+}
