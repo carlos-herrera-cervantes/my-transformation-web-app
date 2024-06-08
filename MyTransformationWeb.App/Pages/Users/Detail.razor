@@ -1,0 +1,59 @@
+@page "/users/{id}"
+
+<div class="row">
+    <Nav></Nav>
+    <div>
+        <UserHeader></UserHeader>
+        <h2>User detail</h2>
+        @if (user is null)
+        {
+            <Loader></Loader>
+        }
+        else
+        {
+            <EditForm Model="user">
+                <div class="row-2">
+                    <div>
+                        <div>
+                            <label class="form-label" for="name">Name</label>
+                            <InputText class="form-input" type="text" placeholder="name" id="name" @bind-Value="user.FirstName" />
+                        </div>
+                        <div>
+                            <label class="form-label" for="last_name">Last Name</label>
+                            <InputText class="form-input" type="text" placeholder="last name" id="last_name" @bind-Value="user.LastName" />
+                        </div>
+                        <div>
+                            <label class="form-label" for="birthdate">Birthdate</label>
+                            <input class="form-input" type="date" id="birthdate" @bind="user.Birthdate" />
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            <label class="form-label" for="created_at">Created At</label>
+                            <input class="form-input" type="text" id="created_at" @bind="user.CreatedAt" readonly />
+                        </div>
+                        <div>
+                            <label class="form-label" for="updated_at">Updated At</label>
+                            <input class="form-input" type="text" id="updated_at" @bind="user.UpdatedAt" readonly />
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+        }
+    </div>
+</div>
+
+@code {
+    private User user = new User
+    {
+        Id = "65dbaacf3511e2df5eb04684",
+        FirstName = "John",
+        LastName = "Doe",
+        Birthdate = DateTime.UtcNow,
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow
+    };
+
+    [Parameter]
+    public string Id { get; set; }
+}

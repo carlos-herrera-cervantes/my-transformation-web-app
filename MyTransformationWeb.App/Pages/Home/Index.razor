@@ -1,8 +1,20 @@
 @page "/"
+@inject NavigationManager navigationManager
 
 <img alt="Wails logo" id="logo" src="/images/logo-universal.png">
-<div class="result" id="result">Type your username to enter</div>
-<div class="input-box" id="input">
-    <input autocomplete="off" class="input" id="name" type="text" />
-    <button class="btn">Enter</button>
-</div>
+<div class="result" id="result">Type your email to enter</div>
+<EditForm Model="user" OnValidSubmit="HandleValidSubmit">
+    <div class="input-box" id="input">
+        <InputText autocomplete="off" class="input" id="name" type="email" placeholder="email" @bind-Value="user.Email" />
+        <button class="btn" type="submit">Enter</button>
+    </div>
+</EditForm>
+
+@code {
+    private User user = new();
+
+    private void HandleValidSubmit()
+    {
+        Console.WriteLine($"email: {user.Email}");
+    }
+}
