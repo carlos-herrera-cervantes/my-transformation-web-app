@@ -1,0 +1,64 @@
+@page "/users"
+
+<div class="row">
+    <Nav></Nav>
+    <div>
+        <UserHeader></UserHeader>
+        <h2>Users</h2>
+        <div>
+            @if (users is null)
+            {
+                <Loader></Loader>
+            }
+            else
+            {
+                <table class="fl-table">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Creation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (users.Count() == 0)
+                        {
+                            <tr>
+                                <td colspan="4">No data</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var user in users)
+                            {
+                                <tr>
+                                    <td>@user.FirstName</td>
+                                    <td>@user.LastName</td>
+                                    <td>@user.CreatedAt</td>
+                                    <td>
+                                        <NavLink href="@($"/users/1")">
+                                            <i class="fa fa-info-circle"></i>
+                                        </NavLink>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private IEnumerable<User> users = new List<User>
+    {
+        new User
+        {
+            Id = "65dbaacf3511e2df5eb04684",
+            FirstName = "John",
+            LastName = "Doe",
+            CreatedAt = DateTime.Now
+        }
+    };
+}
