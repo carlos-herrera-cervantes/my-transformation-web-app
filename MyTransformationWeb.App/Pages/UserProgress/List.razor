@@ -1,0 +1,74 @@
+@page "/users/{userId}/progress"
+
+<div class="row">
+    <Nav></Nav>
+    <div>
+        <UserProgressHeader></UserProgressHeader>
+        <h2>User Progress</h2>
+        <div>
+            @if (userProgress is null)
+            {
+                <Loader></Loader>
+            }
+            else
+            {
+                <table class="fl-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Creation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (userProgress.Count() == 0)
+                        {
+                            <tr>
+                                <td colspan="3">No data</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var progress in userProgress)
+                            {
+                                <tr>
+                                    <td>@progress.Id</td>
+                                    <td>@progress.CreatedAt</td>
+                                    <td>
+                                        <NavLink href="@($"/users/1/progress/1")">
+                                            <i class="fa fa-info-circle"></i> Detail
+                                        </NavLink>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string UserId { get; set; }
+
+    private IEnumerable<UserEvolution> userProgress = new List<UserEvolution>
+    {
+        new UserEvolution
+        {
+            Id = "65dbaacf3511e2df5eb04684",
+            Weight = 30,
+            MeasurementUnit = "kg",
+            Reps = 10,
+            CreatedAt = DateTime.Now
+        },
+        new UserEvolution
+        {
+            Id = "65dbaacf3511e2df5eb04685",
+            Weight = 30,
+            MeasurementUnit = "kg",
+            Reps = 10,
+            CreatedAt = DateTime.Now
+        }
+    };
+}
