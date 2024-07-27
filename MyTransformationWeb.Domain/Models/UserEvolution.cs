@@ -1,5 +1,7 @@
 using Newtonsoft.Json;
 
+namespace MyTransformationWeb.Domain.Models;
+
 public class UserEvolution
 {
     [JsonProperty(nameof(Id))]

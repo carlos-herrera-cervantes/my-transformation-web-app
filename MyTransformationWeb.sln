@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyTransformationWeb.App", "MyTransformationWeb.App\MyTransformationWeb.App.csproj", "{EB4111BB-66D0-4D20-9FD8-81F62B763AE1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyTransformationWeb.Domain", "MyTransformationWeb.Domain\MyTransformationWeb.Domain.csproj", "{F9DFFA65-F6AB-4CF7-AB6C-8DA3E0164827}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{EB4111BB-66D0-4D20-9FD8-81F62B763AE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB4111BB-66D0-4D20-9FD8-81F62B763AE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB4111BB-66D0-4D20-9FD8-81F62B763AE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9DFFA65-F6AB-4CF7-AB6C-8DA3E0164827}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9DFFA65-F6AB-4CF7-AB6C-8DA3E0164827}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9DFFA65-F6AB-4CF7-AB6C-8DA3E0164827}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9DFFA65-F6AB-4CF7-AB6C-8DA3E0164827}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

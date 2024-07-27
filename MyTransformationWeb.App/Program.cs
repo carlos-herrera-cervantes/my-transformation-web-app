@@ -1,6 +1,6 @@
 using Blazored.LocalStorage;
 
-using MyTransformationWeb.App.Config;
+using MyTransformationWeb.Domain.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
