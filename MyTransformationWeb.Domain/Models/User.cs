@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace MyTransformationWeb.App.Models;
+namespace MyTransformationWeb.Domain.Models;
 
 public class User
 {

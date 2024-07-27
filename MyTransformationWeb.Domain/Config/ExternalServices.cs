@@ -1,4 +1,4 @@
-namespace MyTransformationWeb.App.Config;
+namespace MyTransformationWeb.Domain.Config;
 
 public static class ExternalServicesConfig
 {
