@@ -26,3 +26,5 @@ replay_pid*
 appsettings.*
 obj/
 bin/
+
+.env

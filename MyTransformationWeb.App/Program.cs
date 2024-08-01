@@ -1,6 +1,7 @@
 using Blazored.LocalStorage;
 
 using MyTransformationWeb.Domain.Config;
+using MyTransformationWeb.Services.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
@@ -11,6 +12,7 @@ builder.Services.AddHttpClient("my-transformation", c =>
 {
     c.BaseAddress = new Uri(ExternalServicesConfig.GatewayConfig.Host);
 });
+builder.Services.AddSingleton<IExerciseService, ExerciseService>();
 
 var app = builder.Build();
 

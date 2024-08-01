@@ -205,6 +205,26 @@ a {
 
 /* forms */
 
+.box-error {
+    background-color: #CD6155;
+    border-radius: 20px;
+    border-left: 7px solid #922B21;
+    padding: 16px;
+    transition: 1s;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.box-error:hover {
+    background-color: #D98880;
+    border-radius: 20px;
+    border-left: 7px solid #922B21;
+    padding: 16px;
+    transition: 1s;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .form-input {
     color: #333;
     font-size: 90%;
@@ -264,6 +284,24 @@ a {
     border: 2px solid #F0B27A;
     transition: all 0.3s;
     background-color: #F0B27A;
+}
+
+.form-button-error {
+    color: white;
+    font-size: 200%;
+    background-color: transparent;
+    border: none;
+    padding: 00.5rem;
+    width: 20%;
+    cursor: pointer;
+}
+
+.form-button-destroy {
+    color: white;
+    background-color: transparent;
+    border: none;
+    font-size: 100%;
+    cursor: pointer;
 }
 
 .form-button {
