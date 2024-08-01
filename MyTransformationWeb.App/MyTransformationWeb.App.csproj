@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MyTransformationWeb.Domain\MyTransformationWeb.Domain.csproj" />
+    <ProjectReference Include="..\MyTransformationWeb.Services\MyTransformationWeb.Services.csproj" />
   </ItemGroup>
 
 </Project>
