@@ -66,6 +66,7 @@ a {
 }
 
 .input-box .input {
+    width: 20%;
     border: none;
     border-radius: 3px;
     outline: none;

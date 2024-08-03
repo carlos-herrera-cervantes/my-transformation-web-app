@@ -13,6 +13,7 @@ builder.Services.AddHttpClient("my-transformation", c =>
     c.BaseAddress = new Uri(ExternalServicesConfig.GatewayConfig.Host);
 });
 builder.Services.AddSingleton<IExerciseService, ExerciseService>();
+builder.Services.AddSingleton<IUserService, UserService>();
 
 var app = builder.Build();
 
