@@ -33,7 +33,7 @@
                             {
                                 <tr>
                                     <td>@exercise.Name</td>
-                                    <td>@exercise.CreatedAt</td>
+                                    <td>@exercise.CreatedAt.ToString("yyyy-MM-dd")</td>
                                     <td>
                                         <NavLink href="@($"/exercises/{exercise.Id}")">
                                             <i class="fa fa-info-circle"></i> Detail

@@ -1,8 +1,21 @@
+@inject ILocalStorageService localStorage
+
 <div class="row-2">
     <div class="header-option text-center header">
-        <NavLink href="/users/1/progress/new"><i class="fa fa-plus-circle"></i> Create</NavLink>
+        <NavLink href="@($"/users/{UserId}/progress/new")"><i class="fa fa-plus-circle"></i> Create</NavLink>
     </div>
     <div class="header-option text-center header">
-        <NavLink href="/users/1/progress"><i class="fa fa-list"></i> List</NavLink>
+        <NavLink href="@($"/users/{UserId}/progress")"><i class="fa fa-list"></i> List</NavLink>
     </div>
 </div>
+
+@code {
+    private string UserId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await localStorage.GetItemAsync<User>("user");
+        UserId = user.Id;
+        await base.OnInitializedAsync();
+    }
+}

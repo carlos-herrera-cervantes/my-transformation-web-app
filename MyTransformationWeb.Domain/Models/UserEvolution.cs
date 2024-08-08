@@ -26,11 +26,14 @@ public class UserEvolution
     public string Comment { get; set; }
 
     [JsonProperty(nameof(Moment))]
-    public DateTime? Moment { get; set; }
+    public DateTime Moment { get; set; }
 
     [JsonProperty(nameof(CreatedAt))]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     [JsonProperty(nameof(UpdatedAt))]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    [JsonProperty(nameof(Exercise), NullValueHandling = NullValueHandling.Ignore)]
+    public List<Exercise> Exercise { get; set; }
 }
