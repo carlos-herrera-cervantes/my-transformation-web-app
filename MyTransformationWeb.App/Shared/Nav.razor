@@ -1,3 +1,5 @@
+@inject ILocalStorageService LocalStorage
+
 <div class="navigation">
     <NavLink href="/" Match="NavLinkMatch.All" class="no-style">
         <img src="/images/default-profile.png" alt="avatar" class="medium-uniform-polygon medium-white-border" />
@@ -9,7 +11,18 @@
     <NavLink href="/users" Match="NavLinkMatch.All">
         <i class="fas fa-users"></i> Users
     </NavLink>
-    <NavLink href="/users/1/progress" Match="NavLinkMatch.All">
+    <NavLink href="@($"/users/{userId}/progress")" Match="NavLinkMatch.All">
         <i class="fas fa-chart-line"></i> Progress
     </NavLink>
 </div>
+
+@code {
+    private string userId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        User user = await LocalStorage.GetItemAsync<User>("user");
+        userId = user.Id;
+        await base.OnInitializedAsync();
+    }
+}

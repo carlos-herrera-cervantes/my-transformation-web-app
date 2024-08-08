@@ -1,4 +1,5 @@
-@page "/users/{userId}/progress"
+@page "/users/{UserId}/progress"
+@inject IUserProgressService userProgressService
 
 <div class="row">
     <Nav></Nav>
@@ -6,7 +7,16 @@
         <UserProgressHeader></UserProgressHeader>
         <h2>User Progress</h2>
         <div>
-            @if (userProgress is null)
+            <InputSelect class="form-input" @bind-Value="selectedExercise">
+                <option value="">@selectedExercise</option>
+                @foreach (var exercise in exercises)
+                {
+                    <option value="@exercise.Key">@exercise.Value</option>
+                }
+            </InputSelect>
+        </div>
+        <div>
+            @if (UserProgress is null)
             {
                 <Loader></Loader>
             }
@@ -15,28 +25,33 @@
                 <table class="fl-table">
                     <thead>
                         <tr>
-                            <th>Name</th>
+                            <th>Exercise</th>
                             <th>Creation</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if (userProgress.Count() == 0)
+                        @if (UserProgress.Count() == 0)
                         {
                             <tr>
-                                <td colspan="3">No data</td>
+                                <td colspan="4">No data</td>
                             </tr>
                         }
                         else
                         {
-                            foreach (var progress in userProgress)
+                            foreach (var progress in UserProgress)
                             {
                                 <tr>
-                                    <td>@progress.Id</td>
-                                    <td>@progress.CreatedAt</td>
+                                    <td>@progress.Exercise[0].Name</td>
+                                    <td>@progress.Moment.ToString("yyyy-MM-dd")</td>
                                     <td>
-                                        <NavLink href="@($"/users/1/progress/1")">
+                                        <NavLink href="@($"/users/{UserId}/progress/{progress.Id}")">
                                             <i class="fa fa-info-circle"></i> Detail
                                         </NavLink>
+                                    </td>
+                                    <td>
+                                        <button class="form-button-destroy"
+                                            @onclick="@(async () => await OnDeleteAsync(progress.Id))"><i
+                                                class="fas fa-trash-alt"></i> Delete</button>
                                     </td>
                                 </tr>
                             }
@@ -52,23 +67,30 @@
     [Parameter]
     public string UserId { get; set; }
 
-    private IEnumerable<UserEvolution> userProgress = new List<UserEvolution>
+    private IEnumerable<UserEvolution> UserProgress = new List<UserEvolution>();
+
+    private Pageable Pageable = new Pageable();
+
+    private string selectedExercise = "Select an exercise";
+
+    private Dictionary<string, string> exercises = new Dictionary<string, string>();
+
+    protected override async Task OnInitializedAsync()
     {
-        new UserEvolution
+        UserProgress = await userProgressService.GetAllAsync(UserId, Pageable);
+
+        foreach (var progress in UserProgress)
         {
-            Id = "65dbaacf3511e2df5eb04684",
-            Weight = 30,
-            MeasurementUnit = "kg",
-            Reps = 10,
-            CreatedAt = DateTime.Now
-        },
-        new UserEvolution
-        {
-            Id = "65dbaacf3511e2df5eb04685",
-            Weight = 30,
-            MeasurementUnit = "kg",
-            Reps = 10,
-            CreatedAt = DateTime.Now
+            exercises.Add(progress.ExerciseId, progress.Exercise[0].Name);
         }
-    };
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task OnDeleteAsync(string id)
+    {
+        await userProgressService.DeleteAsync(UserId, id);
+        UserProgress = UserProgress.Where(e => e.Id != id);
+        StateHasChanged();
+    }
 }

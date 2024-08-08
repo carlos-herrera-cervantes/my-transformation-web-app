@@ -14,6 +14,7 @@ builder.Services.AddHttpClient("my-transformation", c =>
 });
 builder.Services.AddSingleton<IExerciseService, ExerciseService>();
 builder.Services.AddSingleton<IUserService, UserService>();
+builder.Services.AddSingleton<IUserProgressService, UserProgressService>();
 
 var app = builder.Build();
 

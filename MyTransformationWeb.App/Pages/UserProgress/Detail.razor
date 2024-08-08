@@ -1,4 +1,6 @@
-@page "/users/{userId}/progress/{id}"
+@page "/users/{UserId}/progress/{Id}"
+@inject IExerciseService exerciseService
+@inject IUserProgressService userProgressService
 
 <div class="row">
     <Nav></Nav>
@@ -16,10 +18,11 @@
                     <div>
                         <div>
                             <label class="form-label" for="exercise">Exercise</label>
-                            <InputSelect class="form-input" @bind-Value="defaultExercise">
+                            <InputSelect class="form-input" @bind-Value="userEvolution.ExerciseId">
+                                <option value="@userEvolution.ExerciseId">@selectedExercise</option>
                                 @foreach (var exercise in exercises)
                                 {
-                                    <option value="@exercise">@exercise</option>
+                                    <option value="@exercise.Id">@exercise.Name</option>
                                 }
                             </InputSelect>
                         </div>
@@ -29,7 +32,8 @@
                         </div>
                         <div>
                             <label class="form-label" for="measurement_unit">Measurement unit</label>
-                            <InputSelect class="form-input" @bind-Value="defaultMeasurementUnit">
+                            <InputSelect class="form-input" @bind-Value="userEvolution.MeasurementUnit">
+                                <option value="@userEvolution.MeasurementUnit">@userEvolution.MeasurementUnit</option>
                                 @foreach (var measurementUnit in measurementUnits)
                                 {
                                     <option value="@measurementUnit">@measurementUnit</option>
@@ -67,27 +71,24 @@
     [Parameter]
     public string Id { get; set; }
 
-    private UserEvolution userEvolution = new UserEvolution
+    private UserEvolution userEvolution = new();
+
+    private IEnumerable<Exercise> exercises = new List<Exercise>();
+
+    private IEnumerable<string> measurementUnits = new List<string>();
+
+    private string selectedExercise;
+
+    protected override async Task OnInitializedAsync()
     {
-        Weight = 10,
-        Reps = 12,
-        Comment = "This is a test",
-        Moment = DateTime.UtcNow
-    };
+        userEvolution = await userProgressService.GetByIdAsync(UserId, Id);
+        IEnumerable<Exercise> exerciseCatalog = await exerciseService.GetAllAsync();
+        IEnumerable<string> measurementUnitCatalog = new List<string>{ "kg", "lbs" };
 
-    private string defaultExercise = "Bench Press";
+        selectedExercise = exerciseCatalog.FirstOrDefault(e => e.Id == userEvolution.ExerciseId)?.Name;
+        exercises = exerciseCatalog.Where(e => e.Id != userEvolution.ExerciseId);
+        measurementUnits = measurementUnitCatalog.Where(mu => mu != userEvolution.MeasurementUnit);
 
-    private string defaultMeasurementUnit = "kg";
-
-    private List<string> exercises = new List<string>
-    {
-        "Bench Press",
-        "Squat"
-    };
-
-    private List<string> measurementUnits = new List<string>
-    {
-        "kg",
-        "lbs"
-    };
+        await base.OnInitializedAsync();
+    }
 }
