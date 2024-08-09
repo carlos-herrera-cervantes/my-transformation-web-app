@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="PSC.Blazor.Components.Chartjs" Version="8.0.6" />
   </ItemGroup>
 
   <ItemGroup>

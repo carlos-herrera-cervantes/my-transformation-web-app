@@ -1,5 +1,6 @@
 @page "/users/{UserId}/progress"
-@inject IUserProgressService userProgressService
+@inject IUserProgressService UserProgressService
+@inject ILogger<List> Logger
 
 <div class="row">
     <Nav></Nav>
@@ -7,13 +8,19 @@
         <UserProgressHeader></UserProgressHeader>
         <h2>User Progress</h2>
         <div>
-            <InputSelect class="form-input" @bind-Value="selectedExercise">
-                <option value="">@selectedExercise</option>
+            <InputSelect class="form-input" ValueExpression="@(() => exerciseName)" ValueChanged="@((string value) => OnChangedSelect(value))">
                 @foreach (var exercise in exercises)
                 {
                     <option value="@exercise.Key">@exercise.Value</option>
                 }
             </InputSelect>
+            <div>
+                <label class="form-label-inline" for="from">From</label>
+                <InputDate class="form-input-inline extra-small-width" id="from" @bind-Value="From" />
+                <label class="form-label-inline" for="to">To</label>
+                <InputDate class="form-input-inline extra-small-width" id="to" @bind-Value="To" />
+                <button class="form-button-error"><i class="fas fa-undo-alt"></i></button>
+            </div>
         </div>
         <div>
             @if (UserProgress is null)
@@ -60,6 +67,9 @@
                 </table>
             }
         </div>
+        <div class="small-width content-center small-margin-top">
+            <Chart Config="linearConfig" @ref="chart"></Chart>
+        </div>
     </div>
 </div>
 
@@ -67,20 +77,43 @@
     [Parameter]
     public string UserId { get; set; }
 
+    private IEnumerable<UserEvolution> UserProgressBackup = new List<UserEvolution>();
+
     private IEnumerable<UserEvolution> UserProgress = new List<UserEvolution>();
 
     private Pageable Pageable = new Pageable();
 
-    private string selectedExercise = "Select an exercise";
+    private string exerciseName = string.Empty;
 
-    private Dictionary<string, string> exercises = new Dictionary<string, string>();
+    private Dictionary<string, string> exercises = new Dictionary<string, string>()
+    {
+        {"", "Select an exercise"}
+    };
+
+    private LineChartConfig linearConfig = new LineChartConfig();
+
+    private Chart chart = new Chart();
+
+    private DateTime From = DateTime.Now.Subtract(TimeSpan.FromDays(29));
+
+    private DateTime To = DateTime.Now.AddDays(1);
 
     protected override async Task OnInitializedAsync()
     {
-        UserProgress = await userProgressService.GetAllAsync(UserId, Pageable);
+        Pageable.From = From;
+        Pageable.To = To;
+
+        var queryResult = await UserProgressService.GetAllAsync(UserId, Pageable);
+        UserProgress = queryResult;
+        UserProgressBackup = queryResult;
 
         foreach (var progress in UserProgress)
         {
+            if (exercises.ContainsKey(progress.ExerciseId))
+            {
+                continue;
+            }
+
             exercises.Add(progress.ExerciseId, progress.Exercise[0].Name);
         }
 
@@ -89,8 +122,107 @@
 
     private async Task OnDeleteAsync(string id)
     {
-        await userProgressService.DeleteAsync(UserId, id);
-        UserProgress = UserProgress.Where(e => e.Id != id);
+        await UserProgressService.DeleteAsync(UserId, id);
+        UserProgress = UserProgress.Where(e => e.Id != id).DefaultIfEmpty();
+        UserProgressBackup = UserProgressBackup.Where(e => e.Id != id).DefaultIfEmpty();
+        ConfigLineChart();
         StateHasChanged();
+    }
+
+    private void ConfigLineChart()
+    {
+        linearConfig = new LineChartConfig()
+        {
+            Options = new Options()
+            {
+                OnClickAsync = OnClickAsync,
+                Responsive = true,
+                MaintainAspectRatio = false,
+                RegisterDataLabels = true,
+                Plugins = new Plugins()
+                {
+                    Legend = new Legend()
+                    {
+                        Align = Align.Center,
+                        Display = true,
+                        Position = LegendPosition.Right
+                    }
+                }
+            }
+        };
+
+        var weight = new List<decimal?>();
+        var reps = new List<decimal?>();
+
+        foreach (var progress in UserProgress.Reverse())
+        {
+            linearConfig.Data.Labels.Add(progress.Moment.ToString("yyyy-MM-dd"));
+            weight.Add(progress.Weight);
+            reps.Add(progress.Reps);
+        }
+        linearConfig.Data.Datasets.Add(new LineDataset()
+        {
+            Label = $"Weight {UserProgress.First().MeasurementUnit}",
+            Data = weight,
+            BorderColor = "rgb(84, 153, 199)",
+            Fill = true,
+            PointRadius= 5,
+            BackgroundColor = "rgba(84, 153, 199, 0.2)",
+            DataLabels = new DataLabels()
+            {
+                BackgroundColor = "rgba(84, 153, 199, 0.2)",
+                BorderRadius = 4,
+                Color = "white",
+                Font = new Font()
+                {
+                    Weight = "bold"
+                },
+                Padding = new Padding(6)
+            }
+        });
+        linearConfig.Data.Datasets.Add(new LineDataset()
+        {
+            Label = "Repetitions",
+            Data = reps,
+            BorderColor = "rgb(72, 201, 176)",
+            Fill = true,
+            PointRadius= 5,
+            BackgroundColor = "rgba(72, 201, 176, 0.2)",
+            DataLabels = new DataLabels()
+            {
+                BackgroundColor = "rgba(72, 201, 176, 0.2)",
+                BorderRadius = 4,
+                Color = "white",
+                Font = new Font()
+                {
+                    Weight = "bold"
+                },
+                Padding = new Padding(6)
+            }
+        });
+    }
+
+    private ValueTask OnClickAsync(CallbackGenericContext value)
+    {
+        StateHasChanged();
+        return ValueTask.CompletedTask;
+    }
+
+    private Task OnChangedSelect(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            UserProgress = UserProgressBackup;
+            linearConfig = new LineChartConfig();
+            chart = new Chart();
+            StateHasChanged();
+            return Task.CompletedTask;
+        }
+
+        UserProgress = UserProgressBackup.Where(e => e.ExerciseId == value);
+        ConfigLineChart();
+        StateHasChanged();
+
+        return Task.CompletedTask;
     }
 }
