@@ -88,6 +88,7 @@
     protected override async Task OnInitializedAsync()
     {
         exercises = await exerciseService.GetAllAsync();
+        exercises = exercises.OrderBy(e => e.Name);
         userEvolution.Moment = DateTime.Now;
         userEvolution.ExerciseId = exercises.FirstOrDefault()?.Id;
         userEvolution.MeasurementUnit = measurementUnits.FirstOrDefault();

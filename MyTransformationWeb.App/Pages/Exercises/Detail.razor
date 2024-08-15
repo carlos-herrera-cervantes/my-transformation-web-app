@@ -1,5 +1,6 @@
 @page "/exercises/{id}"
 @inject IExerciseService exerciseService
+@inject NavigationManager NavigationManager
 
 <div class="row">
     <Nav></Nav>
@@ -79,7 +80,7 @@
         multipartFormDataContent.Add(new StringContent(exercise.MuscleGroups), "MuscleGroups");
 
         await exerciseService.UpdateAsync(Id, multipartFormDataContent);
-        StateHasChanged();
+        NavigationManager.NavigateTo("/exercises");
     }
 
     protected void Recover()

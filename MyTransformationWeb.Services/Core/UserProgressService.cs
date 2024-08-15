@@ -28,7 +28,7 @@ public class UserProgressService(IHttpClientFactory httpClientFactory, ILogger<U
         var queryParam = HttpUtility.ParseQueryString(uriBuilder.Query);
 
         queryParam["page"] = pageable.Page.ToString();
-        queryParam["size"] = pageable.PageSize.ToString();
+        queryParam["page_size"] = pageable.PageSize.ToString();
         queryParam["from"] = pageable.From.ToString("yyyy-MM-dd");
         queryParam["to"] = pageable.To.ToString("yyyy-MM-dd");
         uriBuilder.Query = queryParam.ToString();

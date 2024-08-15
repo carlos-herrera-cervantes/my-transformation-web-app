@@ -6,22 +6,24 @@
     <div>
         <Header></Header>
         <h2>Exercises</h2>
-        <div>
-            @if (exercises is null)
+        <div class="history-box">
+            @if (Exercises is null)
             {
                 <Loader></Loader>
             }
             else
             {
                 <table class="fl-table">
-                    <thead>
+                    <thead class="special-head">
                         <tr>
                             <th>Name</th>
                             <th>Creation</th>
+                            <th></th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if (exercises.Count() == 0)
+                        @if (Exercises.Count() == 0)
                         {
                             <tr>
                                 <td colspan="4">No data</td>
@@ -29,7 +31,7 @@
                         }
                         else
                         {
-                            foreach (var exercise in exercises)
+                            foreach (var exercise in Pages[CurrentPage])
                             {
                                 <tr>
                                     <td>@exercise.Name</td>
@@ -49,22 +51,75 @@
                 </table>
             }
         </div>
+        <div class="small-margin-top">
+            <button class="extra-small-width form-button dark-background white-text" @onclick="PreviousPage">&#60;</button>
+            <label>@CurrentPage</label>
+            <button class="extra-small-width form-button dark-background white-text" @onclick="NextPage">&#62;</button>
+        </div>
     </div>
 </div>
 
 @code {
-    private IEnumerable<Exercise> exercises = new List<Exercise>();
+    private IEnumerable<Exercise> Exercises = new List<Exercise>();
+
+    private Dictionary<int, IEnumerable<Exercise>> Pages = new Dictionary<int, IEnumerable<Exercise>>();
+
+    private int CurrentPage = 1;
+
+    private int MaxElementsByPage = 10;
 
     protected override async Task OnInitializedAsync()
     {
-        exercises = await exerciseService.GetAllAsync();
+        Exercises = await exerciseService.GetAllAsync();
+        ConfigPages();
         await base.OnInitializedAsync();
     }
 
     private async Task OnDeleteAsync(string id)
     {
         await exerciseService.DeleteAsync(id);
-        exercises = exercises.Where(e => e.Id != id);
+        Exercises = Exercises.Where(e => e.Id != id);
+        ConfigPages();
+        StateHasChanged();
+    }
+
+    private void ConfigPages()
+    {
+        Pages.Clear();
+
+        if (Exercises.Count() <= MaxElementsByPage)
+        {
+            Pages.Add(1, Exercises);
+            return;
+        }
+
+        var totalPages = Math.Ceiling(Exercises.Count() / (double)MaxElementsByPage);
+
+        for (int i = 0; i < totalPages; i++)
+        {
+            Pages.Add(i + 1, Exercises.Skip(i * MaxElementsByPage).Take(MaxElementsByPage));
+        }
+    }
+
+    private void NextPage()
+    {
+        if (CurrentPage == Pages.Count)
+        {
+            return;
+        }
+
+        CurrentPage++;
+        StateHasChanged();
+    }
+
+    private void PreviousPage()
+    {
+        if (CurrentPage == 1)
+        {
+            return;
+        }
+
+        CurrentPage--;
         StateHasChanged();
     }
 }

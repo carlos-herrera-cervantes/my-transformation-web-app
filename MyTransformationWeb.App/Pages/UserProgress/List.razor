@@ -9,7 +9,7 @@
         <h2>User Progress</h2>
         <div>
             <InputSelect class="form-input" ValueExpression="@(() => exerciseName)" ValueChanged="@((string value) => OnChangedSelect(value))">
-                @foreach (var exercise in exercises)
+                @foreach (var exercise in Exercises)
                 {
                     <option value="@exercise.Key">@exercise.Value</option>
                 }
@@ -19,10 +19,10 @@
                 <InputDate class="form-input-inline extra-small-width" id="from" @bind-Value="From" />
                 <label class="form-label-inline" for="to">To</label>
                 <InputDate class="form-input-inline extra-small-width" id="to" @bind-Value="To" />
-                <button class="form-button-error"><i class="fas fa-undo-alt"></i></button>
+                <button class="form-button-error" @onclick="GetByIntervalAsync"><i class="fas fa-undo-alt"></i></button>
             </div>
         </div>
-        <div>
+        <div class="@($"history-box {ShowTable}")">
             @if (UserProgress is null)
             {
                 <Loader></Loader>
@@ -30,10 +30,12 @@
             else
             {
                 <table class="fl-table">
-                    <thead>
+                    <thead class="special-head">
                         <tr>
                             <th>Exercise</th>
-                            <th>Creation</th>
+                            <th>Training date</th>
+                            <th></th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -45,7 +47,7 @@
                         }
                         else
                         {
-                            foreach (var progress in UserProgress)
+                            foreach (var progress in Pages[CurrentPage])
                             {
                                 <tr>
                                     <td>@progress.Exercise[0].Name</td>
@@ -67,9 +69,18 @@
                 </table>
             }
         </div>
-        <div class="small-width content-center small-margin-top">
-            <Chart Config="linearConfig" @ref="chart"></Chart>
+        <div class="@($"small-width content-center small-margin-top {ShowChart}")">
+            <Chart Config="LinearConfig" @ref="Chart"></Chart>
         </div>
+        <div class="@($"small-width content-center small-margin-top info-box {ShowChart}")">
+            <i class="fas fa-info-circle"></i> Comment: @Comment
+        </div>
+        <div class="@($"small-margin-top {ShowTable}")">
+            <button class="extra-small-width form-button dark-background white-text" @onclick="PreviousPage">&#60;</button>
+            <label>@CurrentPage</label>
+            <button class="extra-small-width form-button dark-background white-text" @onclick="NextPage">&#62;</button>
+        </div>
+        <Popup @ref="Popup" />
     </div>
 </div>
 
@@ -81,22 +92,36 @@
 
     private IEnumerable<UserEvolution> UserProgress = new List<UserEvolution>();
 
+    private Dictionary<int, IEnumerable<UserEvolution>> Pages = new Dictionary<int, IEnumerable<UserEvolution>>();
+
     private Pageable Pageable = new Pageable();
 
     private string exerciseName = string.Empty;
 
-    private Dictionary<string, string> exercises = new Dictionary<string, string>()
+    private Dictionary<string, string> Exercises = new Dictionary<string, string>()
     {
-        {"", "Select an exercise"}
+        {"", "A - Select an exercise"}
     };
 
-    private LineChartConfig linearConfig = new LineChartConfig();
+    private LineChartConfig LinearConfig = new LineChartConfig();
 
-    private Chart chart = new Chart();
+    private Chart Chart = new Chart();
 
     private DateTime From = DateTime.Now.Subtract(TimeSpan.FromDays(29));
 
     private DateTime To = DateTime.Now.AddDays(1);
+
+    private int CurrentPage = 1;
+
+    private int MaxElementsByPage = 10;
+
+    private string ShowChart = "hide";
+
+    private string ShowTable = "show";
+
+    private string Comment = "No comment";
+
+    private Popup Popup;
 
     protected override async Task OnInitializedAsync()
     {
@@ -107,17 +132,43 @@
         UserProgress = queryResult;
         UserProgressBackup = queryResult;
 
+        ConfigExerciseNames();
+        ConfigPages();
+
+        await base.OnInitializedAsync();
+    }
+
+    private void ConfigExerciseNames()
+    {
         foreach (var progress in UserProgress)
         {
-            if (exercises.ContainsKey(progress.ExerciseId))
+            if (Exercises.ContainsKey(progress.ExerciseId))
             {
                 continue;
             }
 
-            exercises.Add(progress.ExerciseId, progress.Exercise[0].Name);
+            Exercises.Add(progress.ExerciseId, progress.Exercise[0].Name);
         }
 
-        await base.OnInitializedAsync();
+        Exercises = Exercises.OrderBy(e => e.Value).ToDictionary();
+    }
+
+    private void ConfigPages()
+    {
+        Pages.Clear();
+
+        if (UserProgress.Count() <= MaxElementsByPage)
+        {
+            Pages.Add(1, UserProgress);
+            return;
+        }
+
+        var totalPages = Math.Ceiling(UserProgress.Count() / (double)MaxElementsByPage);
+
+        for (int i = 0; i < totalPages; i++)
+        {
+            Pages.Add(i + 1, UserProgress.Skip(i * MaxElementsByPage).Take(MaxElementsByPage));
+        }
     }
 
     private async Task OnDeleteAsync(string id)
@@ -125,13 +176,40 @@
         await UserProgressService.DeleteAsync(UserId, id);
         UserProgress = UserProgress.Where(e => e.Id != id).DefaultIfEmpty();
         UserProgressBackup = UserProgressBackup.Where(e => e.Id != id).DefaultIfEmpty();
+        ConfigPages();
         ConfigLineChart();
+        StateHasChanged();
+    }
+
+    private async Task GetByIntervalAsync()
+    {
+        if (From > To)
+        {
+            Popup.Show("The start date must be less than the end date", "Info");
+            return;
+        }
+
+        if (To.Subtract(From).TotalDays > 31)
+        {
+            Popup.Show("The interval must be less than 30 days", "Info");
+            return;
+        }
+
+        Pageable.From = From;
+        Pageable.To = To;
+
+        var queryResult = await UserProgressService.GetAllAsync(UserId, Pageable);
+        UserProgress = queryResult;
+        UserProgressBackup = queryResult;
+
+        ConfigExerciseNames();
+        ConfigPages();
         StateHasChanged();
     }
 
     private void ConfigLineChart()
     {
-        linearConfig = new LineChartConfig()
+        LinearConfig = new LineChartConfig()
         {
             Options = new Options()
             {
@@ -139,6 +217,17 @@
                 Responsive = true,
                 MaintainAspectRatio = false,
                 RegisterDataLabels = true,
+                Animations = new Animations()
+                {
+                    Tension = new Tension()
+                    {
+                        Duration = 1000,
+                        Easing = "linear",
+                        From = 1,
+                        To = 0,
+                        Loop = true
+                    }
+                },
                 Plugins = new Plugins()
                 {
                     Legend = new Legend()
@@ -156,11 +245,11 @@
 
         foreach (var progress in UserProgress.Reverse())
         {
-            linearConfig.Data.Labels.Add(progress.Moment.ToString("yyyy-MM-dd"));
+            LinearConfig.Data.Labels.Add(progress.Moment.ToString("yyyy-MM-dd"));
             weight.Add(progress.Weight);
             reps.Add(progress.Reps);
         }
-        linearConfig.Data.Datasets.Add(new LineDataset()
+        LinearConfig.Data.Datasets.Add(new LineDataset()
         {
             Label = $"Weight {UserProgress.First().MeasurementUnit}",
             Data = weight,
@@ -180,7 +269,7 @@
                 Padding = new Padding(6)
             }
         });
-        linearConfig.Data.Datasets.Add(new LineDataset()
+        LinearConfig.Data.Datasets.Add(new LineDataset()
         {
             Label = "Repetitions",
             Data = reps,
@@ -204,6 +293,13 @@
 
     private ValueTask OnClickAsync(CallbackGenericContext value)
     {
+        string comment = Pages[CurrentPage].ElementAt(value.DataIndex).Comment;
+
+        if (!string.IsNullOrEmpty(comment))
+        {
+            Comment = comment;
+        }
+
         StateHasChanged();
         return ValueTask.CompletedTask;
     }
@@ -213,16 +309,47 @@
         if (string.IsNullOrEmpty(value))
         {
             UserProgress = UserProgressBackup;
-            linearConfig = new LineChartConfig();
-            chart = new Chart();
+            LinearConfig = new LineChartConfig();
+            Chart = new Chart();
+            ShowChart = "hide";
+            ShowTable = "show";
+            ConfigPages();
             StateHasChanged();
+
             return Task.CompletedTask;
         }
 
         UserProgress = UserProgressBackup.Where(e => e.ExerciseId == value);
+        ShowChart = "show";
+        ShowTable = "hide";
+        ConfigPages();
         ConfigLineChart();
         StateHasChanged();
 
         return Task.CompletedTask;
+    }
+
+    private void NextPage()
+    {
+        if (CurrentPage == Pages.Count)
+        {
+            return;
+        }
+
+        CurrentPage++;
+        UserProgress = Pages[CurrentPage];
+        StateHasChanged();
+    }
+
+    private void PreviousPage()
+    {
+        if (CurrentPage == 1)
+        {
+            return;
+        }
+
+        CurrentPage--;
+        UserProgress = Pages[CurrentPage];
+        StateHasChanged();
     }
 }
