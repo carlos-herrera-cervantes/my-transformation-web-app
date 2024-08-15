@@ -89,6 +89,13 @@ a {
 
 /* tables */
 
+.special-head {
+    background-color: #bfc9ca;
+    color: #34495e;
+    position: sticky;
+    top: 0;
+}
+
 .fl-table {
     border-radius: 5px;
     font-weight: normal;
@@ -135,6 +142,72 @@ a {
 }
 
 /* containers */
+
+.hide {
+    display: none;
+}
+
+.show {
+    display: block;
+}
+
+.modal {
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #5d6d7e;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: 0.5rem;
+    width: 60%;
+}
+
+.modal-btn-close {
+    color: #F0B27A;
+    background-color: transparent;
+    float: right;
+    font-weight: bold;
+    border: 2px solid #F0B27A;
+    border-radius: 0.2rem;
+    padding: 00.5rem;
+    transition: 1s;
+}
+
+.modal-btn-close:hover,
+.modal-btn-close:focus {
+  text-decoration: none;
+  cursor: pointer;
+  background-color: #F0B27A;
+  transition: 1s;
+  color: white;
+}
+
+.info-box {
+    background-color: rgb(84, 153, 199);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: 1s;
+}
+
+.info-box:hover {
+    background-color: rgba(84, 153, 199, 0.2);
+    transition: 1s;
+}
+
+.history-box {
+    height: 50%;
+    box-shadow: rgb(38, 57, 77) -10px -20px 30px 20px;
+    overflow-y: auto;
+}
 
 .navigation {
     background-color: #2e4053;
@@ -228,6 +301,26 @@ a {
     transition: 1s;
     margin-left: auto;
     margin-right: auto;
+}
+
+.form-input-disabled {
+    cursor: not-allowed;
+    color: #333;
+    font-size: 90%;
+    font-family: 'Nunito';
+    margin-bottom: 5%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0.5rem;
+    border-radius: 0.2rem;
+    background-color: rgb(204, 209, 209);
+    border: none;
+    width: 60%;
+    max-width: 60%;
+    display: block;
+    border-bottom: 0.3rem solid transparent;
+    transition: all 0.3s;
+    outline: none;
 }
 
 .form-input {
