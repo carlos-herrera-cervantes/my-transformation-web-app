@@ -293,7 +293,8 @@
 
     private ValueTask OnClickAsync(CallbackGenericContext value)
     {
-        string comment = Pages[CurrentPage].ElementAt(value.DataIndex).Comment;
+        Comment = "No comment";
+        string comment = UserProgress.Reverse().ElementAt(value.DataIndex).Comment;
 
         if (!string.IsNullOrEmpty(comment))
         {
