@@ -27,7 +27,7 @@ public class ExerciseService(IHttpClientFactory httpClientFactory, ILogger<Exerc
         if (!httpResponse.IsSuccessStatusCode)
         {
             _logger.LogError("Failed to get exercises. Status code: {StatusCode}", httpResponse.StatusCode);
-            return Enumerable.Empty<Exercise>();
+            return [];
         }
 
         string content = await httpResponse.Content.ReadAsStringAsync();
@@ -54,14 +54,17 @@ public class ExerciseService(IHttpClientFactory httpClientFactory, ILogger<Exerc
     {
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("multipart/form-data"));
         using HttpResponseMessage httpResponse = await _httpClient.PostAsync($"{CoreApi.BasePath}/v1/exercise", multipartFormDataContent);
+        string content = string.Empty;
 
         if (!httpResponse.IsSuccessStatusCode)
         {
             _logger.LogError("Failed to create exercise. Status code: {StatusCode}", httpResponse.StatusCode);
-            throw new Exception("Failed to create exercise");
+            content = await httpResponse.Content.ReadAsStringAsync();
+            FailedHttpResponse failedHttpResponse = JsonConvert.DeserializeObject<FailedHttpResponse>(content);
+            throw new Exception($"Failed to create exercise: {failedHttpResponse.Message}");
         }
 
-        string content = await httpResponse.Content.ReadAsStringAsync();
+        content = await httpResponse.Content.ReadAsStringAsync();
 
         return JsonConvert.DeserializeObject<Exercise>(content);
     }
