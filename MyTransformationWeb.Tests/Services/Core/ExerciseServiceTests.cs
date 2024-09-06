@@ -139,7 +139,11 @@ public class ExerciseServiceTests
         delegatingHandler
             .Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError))
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.BadRequest,
+                Content = new StringContent(JsonConvert.SerializeObject(new FailedHttpResponse { Message = "Failed to create exercise" }))
+            })
             .Verifiable();
 
         var exerciseService = new ExerciseService(_httpClientFactory.Object, _logger.Object);
