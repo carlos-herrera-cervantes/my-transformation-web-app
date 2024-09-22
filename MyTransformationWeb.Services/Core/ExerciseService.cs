@@ -12,7 +12,7 @@ public class ExerciseService(IHttpClientFactory httpClientFactory, ILogger<Exerc
 {
     #region snippet_Properties
 
-    private readonly HttpClient _httpClient = httpClientFactory.CreateClient("my-transformation");
+    private readonly HttpClient _httpClient = httpClientFactory.CreateClient("my-transformation-core");
 
     private readonly ILogger<ExerciseService> _logger = logger;
 

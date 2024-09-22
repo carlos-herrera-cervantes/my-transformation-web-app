@@ -13,7 +13,7 @@ public class UserService(IHttpClientFactory httpClientFactory, ILogger<UserServi
 {
     #region snippet_Properties
 
-    private readonly HttpClient _httpClient = httpClientFactory.CreateClient("my-transformation");
+    private readonly HttpClient _httpClient = httpClientFactory.CreateClient("my-transformation-core");
 
     private readonly ILogger<UserService> _logger = logger;
 

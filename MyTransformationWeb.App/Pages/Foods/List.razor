@@ -1,0 +1,125 @@
+@page "/food/list"
+@inject IFoodService foodService
+
+<div class="row">
+    <Nav></Nav>
+    <div>
+        <FoodHeader></FoodHeader>
+        <h2>Food</h2>
+        <div class="history-box">
+            @if (food is null)
+            {
+                <Loader></Loader>
+            }
+            else
+            {
+                <table class="fl-table">
+                    <thead class="special-head">
+                        <tr>
+                            <th>Name</th>
+                            <th>Creation</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (food.Count() == 0)
+                        {
+                            <tr>
+                                <td colspan="4">No data</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var food in pages[currentPage])
+                            {
+                                <tr>
+                                    <td>@food.Name</td>
+                                    <td>@food.CreatedAt.ToString("yyyy-MM-dd")</td>
+                                    <td>
+                                        <NavLink href="@($"/food/list/{food.Id}")">
+                                            <i class="fa fa-info-circle"></i> Detail
+                                        </NavLink>
+                                    </td>
+                                    <td>
+                                        <button class="form-button-destroy" @onclick="@(async () => await OnDeleteAsync(food.Id))"><i class="fas fa-trash-alt"></i> Delete</button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+        <div class="small-margin-top">
+            <button class="extra-small-width form-button dark-background white-text" @onclick="PreviousPage">&#60;</button>
+            <label>@currentPage</label>
+            <button class="extra-small-width form-button dark-background white-text" @onclick="NextPage">&#62;</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private IEnumerable<Food> food = new List<Food>();
+
+    private Dictionary<int, IEnumerable<Food>> pages = new Dictionary<int, IEnumerable<Food>>();
+
+    private int currentPage = 1;
+
+    private int maxElementsByPage = 10;
+
+    protected override async Task OnInitializedAsync()
+    {
+        food = await foodService.GetAllAsync();
+        ConfigPages();
+        await base.OnInitializedAsync();
+    }
+
+    private async Task OnDeleteAsync(string id)
+    {
+        await foodService.DeleteAsync(id);
+        food = food.Where(e => e.Id != id);
+        ConfigPages();
+        StateHasChanged();
+    }
+
+    private void ConfigPages()
+    {
+        pages.Clear();
+
+        if (food.Count() <= maxElementsByPage)
+        {
+            pages.Add(1, food);
+            return;
+        }
+
+        var totalPages = Math.Ceiling(food.Count() / (double)maxElementsByPage);
+
+        for (int i = 0; i < totalPages; i++)
+        {
+            pages.Add(i + 1, food.Skip(i * maxElementsByPage).Take(maxElementsByPage));
+        }
+    }
+
+    private void NextPage()
+    {
+        if (currentPage == pages.Count)
+        {
+            return;
+        }
+
+        currentPage++;
+        StateHasChanged();
+    }
+
+    private void PreviousPage()
+    {
+        if (currentPage == 1)
+        {
+            return;
+        }
+
+        currentPage--;
+        StateHasChanged();
+    }
+}
