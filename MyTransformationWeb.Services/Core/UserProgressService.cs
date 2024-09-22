@@ -14,7 +14,7 @@ public class UserProgressService(IHttpClientFactory httpClientFactory, ILogger<U
 {
     #region snippet_Properties
 
-    private readonly HttpClient _httpClient = httpClientFactory.CreateClient("my-transformation");
+    private readonly HttpClient _httpClient = httpClientFactory.CreateClient("my-transformation-core");
 
     private readonly ILogger<UserProgressService> _logger = logger;
 
@@ -24,7 +24,7 @@ public class UserProgressService(IHttpClientFactory httpClientFactory, ILogger<U
 
     public async Task<IEnumerable<UserEvolution>> GetAllAsync(string userId, Pageable pageable)
     {
-        var uriBuilder = new UriBuilder($"{ExternalServicesConfig.GatewayConfig.Host}{CoreApi.BasePath}/v1/users/progress/me");
+        var uriBuilder = new UriBuilder($"{ExternalServicesConfig.GatewayConfig.CoreApiHost}{CoreApi.BasePath}/v1/users/progress/me");
         var queryParam = HttpUtility.ParseQueryString(uriBuilder.Query);
 
         queryParam["page"] = pageable.Page.ToString();
