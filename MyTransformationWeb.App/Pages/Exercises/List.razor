@@ -1,5 +1,6 @@
 @page "/exercises"
 @inject IExerciseService exerciseService
+@inject IPaginationService<Exercise> paginationService
 
 <div class="row">
     <Nav></Nav>
@@ -71,7 +72,7 @@
     protected override async Task OnInitializedAsync()
     {
         Exercises = await exerciseService.GetAllAsync();
-        ConfigPages();
+        Pages = paginationService.GetPages(MaxElementsByPage, Exercises);
         await base.OnInitializedAsync();
     }
 
@@ -79,47 +80,19 @@
     {
         await exerciseService.DeleteAsync(id);
         Exercises = Exercises.Where(e => e.Id != id);
-        ConfigPages();
+        Pages = paginationService.GetPages(MaxElementsByPage, Exercises);
         StateHasChanged();
-    }
-
-    private void ConfigPages()
-    {
-        Pages.Clear();
-
-        if (Exercises.Count() <= MaxElementsByPage)
-        {
-            Pages.Add(1, Exercises);
-            return;
-        }
-
-        var totalPages = Math.Ceiling(Exercises.Count() / (double)MaxElementsByPage);
-
-        for (int i = 0; i < totalPages; i++)
-        {
-            Pages.Add(i + 1, Exercises.Skip(i * MaxElementsByPage).Take(MaxElementsByPage));
-        }
     }
 
     private void NextPage()
     {
-        if (CurrentPage == Pages.Count)
-        {
-            return;
-        }
-
-        CurrentPage++;
+        CurrentPage = paginationService.NextPage();
         StateHasChanged();
     }
 
     private void PreviousPage()
     {
-        if (CurrentPage == 1)
-        {
-            return;
-        }
-
-        CurrentPage--;
+        CurrentPage = paginationService.PreviousPage();
         StateHasChanged();
     }
 }

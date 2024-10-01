@@ -1,15 +1,16 @@
-@page "/food/list"
-@inject IFoodService foodService
+@page "/users/{UserId}/consumptions"
+@inject IConsumptionService consumptionService
+@inject ILocalStorageService LocalStorage
+@inject IPaginationService<Consumption> paginationService
 @inject ILogger<List> logger
-@inject IPaginationService<Food> paginationService
 
 <div class="row">
     <Nav></Nav>
     <div>
-        <FoodHeader></FoodHeader>
-        <h2>Food</h2>
+        <ConsumptionHeader></ConsumptionHeader>
+        <h2>Consumptions</h2>
         <div class="history-box">
-            @if (food is null)
+            @if (consumptions is null)
             {
                 <Loader></Loader>
             }
@@ -18,14 +19,15 @@
                 <table class="fl-table">
                     <thead class="special-head">
                         <tr>
-                            <th>Name</th>
+                            <th>Food</th>
+                            <th>Calories (kcal)</th>
                             <th>Creation</th>
                             <th></th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if (food.Count() == 0)
+                        @if (consumptions.Count() == 0)
                         {
                             <tr>
                                 <td colspan="4">No data</td>
@@ -33,18 +35,19 @@
                         }
                         else
                         {
-                            foreach (var food in pages[currentPage])
+                            foreach (var consumption in pages[currentPage])
                             {
                                 <tr>
-                                    <td>@food.Name</td>
-                                    <td>@food.CreatedAt.ToString("yyyy-MM-dd")</td>
+                                    <td>@consumption.PartialFood.Name</td>
+                                    <td>@consumption.Calories</td>
+                                    <td>@consumption.Moment.ToString("yyyy-MM-dd HH:mm")</td>
                                     <td>
-                                        <NavLink href="@($"/food/list/{food.Id}")">
+                                        <NavLink href="@($"/users/{UserId}/consumptions/{consumption.Id}")">
                                             <i class="fa fa-info-circle"></i> Detail
                                         </NavLink>
                                     </td>
                                     <td>
-                                        <button class="form-button-destroy" @onclick="@(async () => await OnDeleteAsync(food.Id))"><i class="fas fa-trash-alt"></i> Delete</button>
+                                        <button class="form-button-destroy" @onclick="@(async () => await OnDeleteAsync(consumption.Id))"><i class="fas fa-trash-alt"></i> Delete</button>
                                     </td>
                                 </tr>
                             }
@@ -53,7 +56,7 @@
                 </table>
             }
         </div>
-        <div class="small-margin-top">
+        <div class="@($"small-margin-top")">
             <button class="extra-small-width form-button dark-background white-text" @onclick="PreviousPage">&#60;</button>
             <label>@currentPage</label>
             <button class="extra-small-width form-button dark-background white-text" @onclick="NextPage">&#62;</button>
@@ -62,9 +65,12 @@
 </div>
 
 @code {
-    private IEnumerable<Food> food = new List<Food>();
+    [Parameter]
+    public string UserId { get; set; }
 
-    private Dictionary<int, IEnumerable<Food>> pages = new Dictionary<int, IEnumerable<Food>>();
+    private IEnumerable<Consumption> consumptions = [];
+
+    private Dictionary<int, IEnumerable<Consumption>> pages = [];
 
     private int currentPage = 1;
 
@@ -72,14 +78,21 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var start = DateTime.Today;
+        var pageable = new Pageable
+        {
+            From = start,
+            To = start.AddDays(1).AddTicks(-1)
+        };
+
         try
         {
-            food = await foodService.GetAllAsync();
-            pages = paginationService.GetPages(maxElementsByPage, food);
+            consumptions = await consumptionService.GetAllAsync(UserId, pageable);
+            pages = paginationService.GetPages(maxElementsByPage, consumptions);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error loading food");
+            logger.LogError(ex, "Error loading consumptions");
         }
 
         await base.OnInitializedAsync();
@@ -87,9 +100,9 @@
 
     private async Task OnDeleteAsync(string id)
     {
-        await foodService.DeleteAsync(id);
-        food = food.Where(e => e.Id != id);
-        pages = paginationService.GetPages(maxElementsByPage, food);
+        await consumptionService.DeleteAsync(UserId, id);
+        consumptions = consumptions.Where(e => e.Id != id);
+        pages = paginationService.GetPages(maxElementsByPage, consumptions);
         StateHasChanged();
     }
 
