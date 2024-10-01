@@ -1,0 +1,81 @@
+@page "/users/{UserId}/consumptions/{Id}"
+@inject IConsumptionService consumptionService
+
+<div class="row">
+    <Nav></Nav>
+    <div>
+        <ConsumptionHeader></ConsumptionHeader>
+        <h2>Consumption detail</h2>
+        @if (consumption is null)
+        {
+            <Loader></Loader>
+        }
+        else
+        {
+            <EditForm Model="consumption">
+                <div class="row-2">
+                    <div>
+                        <div>
+                            <label class="form-label" for="name">Food</label>
+                            <input class="form-input" type="text" id="name" @bind="consumption.PartialFood.Name" readonly />
+                        </div>
+                        <div>
+                            <label class="form-label" for="measurement_unit">Measurement unit</label>
+                            <input class="form-input" type="text" id="measurement_unit" @bind="consumption.PartialFood.MeasurementUnit" readonly />
+                        </div>
+                        <div>
+                            <label class="form-label" for="quantity">Quantity</label>
+                            <input class="form-input" type="text" id="quantity" @bind="consumption.Quantity" readonly />
+                        </div>
+                        <div>
+                            <label class="form-label" for="calories">Calories (kcal)</label>
+                            <input class="form-input" type="text" id="calories" @bind="consumption.Calories" readonly />
+                        </div>
+                        <div>
+                            <label class="form-label" for="protein">Protein (gr)</label>
+                            <input class="form-input" type="text" id="protein" @bind="consumption.Protein" readonly />
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            <label class="form-label" for="carbs">Carbs (gr)</label>
+                            <input class="form-input" type="text" id="carbs" @bind="consumption.Carbs" readonly />
+                        </div>
+                        <div>
+                            <label class="form-label" for="fats">Fats (gr)</label>
+                            <input class="form-input" type="text" id="fats" @bind="consumption.Fats" readonly />
+                        </div>
+                        <div>
+                            <label class="form-label" for="moment">Moment</label>
+                            <input class="form-input" type="text" id="moment" @bind="consumption.Moment" readonly />
+                        </div>
+                        <div>
+                            <label class="form-label" for="created_at">Created at</label>
+                            <input class="form-input" type="text" id="created_at" @bind="consumption.CreatedAt" readonly />
+                        </div>
+                        <div>
+                            <label class="form-label" for="updated_at">Updated at</label>
+                            <input class="form-input" type="text" id="updated_at" @bind="consumption.UpdatedAt" readonly />
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string UserId { get; set; }
+
+    [Parameter]
+    public string Id { get; set; }
+
+    private Consumption consumption = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        consumption = await consumptionService.GetAsync(UserId, Id);
+        await base.OnInitializedAsync();
+    }
+}

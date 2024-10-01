@@ -3,6 +3,7 @@ using Blazored.LocalStorage;
 using MyTransformationWeb.Domain.Config;
 using MyTransformationWeb.Services.Calories;
 using MyTransformationWeb.Services.Core;
+using MyTransformationWeb.Services.Internal;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
@@ -21,6 +22,8 @@ builder.Services.AddSingleton<IExerciseService, ExerciseService>();
 builder.Services.AddSingleton<IUserService, UserService>();
 builder.Services.AddSingleton<IUserProgressService, UserProgressService>();
 builder.Services.AddSingleton<IFoodService, FoodService>();
+builder.Services.AddSingleton<IConsumptionService, ConsumptionService>();
+builder.Services.AddSingleton(typeof(IPaginationService<>), typeof(SimplePagination<>));
 
 var app = builder.Build();
 

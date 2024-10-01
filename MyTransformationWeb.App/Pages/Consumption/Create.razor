@@ -1,0 +1,124 @@
+@page "/users/{UserId}/consumption"
+@inject IConsumptionService consumptionService
+@inject NavigationManager NavigationManager
+@inject IFoodService foodService
+
+<div class="row">
+    <Nav></Nav>
+    <div>
+        <ConsumptionHeader></ConsumptionHeader>
+        <h2>New consumption</h2>
+        <ErrorBoundary @ref="@errorBoundary">
+            <ChildContent>
+                <EditForm Model="consumption" OnValidSubmit="HandleValidSubmitAsync">
+                    <div class="row-2">
+                        <div>
+                            <div class="tooltip-container">
+                                <span class="tooltip-text">The measurement unit for this food is @selectedMeasurementUnit</span>
+                                <label class="form-label" for="food">Food</label>
+                                <InputSelect class="form-input" ValueExpression="@(() => selectedMeasurementUnit)" ValueChanged="@((string value) => OnChangedSelect(value))">
+                                    @foreach (var element in food)
+                                    {
+                                        <option value="@element.Id">@element.Name</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div>
+                                <label class="form-label" for="quantity">Quantity (gr, ml, unit)</label>
+                                <InputNumber class="form-input" placeholder="0" id="quantity"
+                                    @bind-Value="consumption.Quantity" />
+                            </div>
+                            <div>
+                                <label class="form-label" for="moment">Moment</label>
+                                <InputDate class="form-input" id="moment" @bind-Value="consumption.Moment" />
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <label class="form-label" for="hour">Hour</label>
+                                <InputSelect class="form-input" @bind-Value="selectedHour">
+                                    @foreach (var hour in hours)
+                                    {
+                                        <option value="@hour">@hour</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div>
+                                <label class="form-label" for="minute">Minute</label>
+                                <InputSelect class="form-input" @bind-Value="selectedMinute">
+                                    @foreach (var minute in minutes)
+                                    {
+                                        <option value="@minute">@minute</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div>
+                                <button class="form-button dark-background white-text" type="submit">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </EditForm>
+            </ChildContent>
+            <ErrorContent Context="ex">
+                <div class="box-error">
+                    <p>@ex.Message</p>
+                    <button class="form-button-error" @onclick="Recover"><i class="fas fa-undo-alt"></i></button>
+                </div>
+            </ErrorContent>
+        </ErrorBoundary>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string UserId { get; set; }
+
+    private ConsumptionCreation consumption = new();
+
+    private IEnumerable<Food> food = [];
+
+    private IEnumerable<string> hours = Enumerable.Range(0, 24).Select(h => h.ToString("00"));
+
+    private IEnumerable<string> minutes = Enumerable.Range(0, 60).Select(m => m.ToString("00"));
+
+    private string selectedHour = string.Empty;
+
+    private string selectedMinute = string.Empty;
+
+    private string selectedMeasurementUnit = string.Empty;
+
+    protected ErrorBoundary errorBoundary = default;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var serviceResult = await foodService.GetAllAsync();
+
+        food = serviceResult.OrderBy(f => f.Name);
+        consumption.Moment = DateTime.Now;
+        consumption.FoodId = food.FirstOrDefault()?.Id;
+        selectedMeasurementUnit = food.FirstOrDefault()?.MeasurementUnit;
+        selectedHour = hours.FirstOrDefault();
+        selectedMinute = minutes.FirstOrDefault();
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task HandleValidSubmitAsync()
+    {
+        consumption.Moment = DateTime.Parse($"{consumption.Moment:yyyy-MM-dd}T{selectedHour}:{selectedMinute}");
+        await consumptionService.CreateAsync(UserId, consumption);
+        NavigationManager.NavigateTo($"/users/{UserId}/consumptions");
+    }
+
+    protected void Recover()
+    {
+        errorBoundary?.Recover();
+    }
+
+    private Task OnChangedSelect(string value)
+    {
+        consumption.FoodId = value;
+        selectedMeasurementUnit = food.FirstOrDefault(f => f.Id == value)?.MeasurementUnit;
+        return Task.CompletedTask;
+    }
+}
