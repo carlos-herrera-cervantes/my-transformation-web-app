@@ -1,0 +1,41 @@
+@page "/"
+@inject NavigationManager navigationManager
+@inject ILocalStorageService localStorage
+@inject IUserService userService
+
+<img alt="Wails logo" id="logo" src="/images/logo-universal.png">
+<div class="result" id="result">Type your email to enter</div>
+<ErrorBoundary @ref="@errorBoundary">
+    <ChildContent>
+        <EditForm Model="user" OnValidSubmit="HandleValidSubmitAsync">
+            <div class="input-box" id="input">
+                <InputText autocomplete="off" class="input" id="name" type="email" placeholder="email" @bind-Value="user.Email" />
+                <button class="btn" type="submit">Enter</button>
+            </div>
+        </EditForm>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        <div class="box-error">
+            <p>@ex.Message</p>
+            <button class="form-button-error" @onclick="Recover"><i class="fas fa-undo-alt"></i></button>
+        </div>
+    </ErrorContent>
+</ErrorBoundary>
+
+@code {
+    private User user = new();
+
+    protected ErrorBoundary errorBoundary = default;
+
+    private async Task HandleValidSubmitAsync()
+    {
+        User result = await userService.GetByEmailAddressAsync(user.Email);
+        await localStorage.SetItemAsync("user", result);
+        navigationManager.NavigateTo("/session");
+    }
+
+    protected void Recover()
+    {
+        errorBoundary?.Recover();
+    }
+}

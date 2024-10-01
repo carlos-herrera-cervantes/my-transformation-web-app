@@ -1,0 +1,45 @@
+@inject ILocalStorageService LocalStorage
+
+<div class="navigation">
+    <NavLink href="@($"/profile/{UserId}")" Match="NavLinkMatch.All" class="no-style">
+        <img src=@ImgSrc alt="avatar" class="medium-uniform-polygon medium-white-border" />
+    </NavLink>
+    <h2 class="text-center">Sections</h2>
+    <NavLink href="/exercises" Match="NavLinkMatch.All">
+        <i class="fas fa-dumbbell"></i> Exercises
+    </NavLink>
+    @* <NavLink href="/users" Match="NavLinkMatch.All">
+        <i class="fas fa-users"></i> Users
+    </NavLink> *@
+    <NavLink href="@($"/users/{UserId}/progress")" Match="NavLinkMatch.All">
+        <i class="fas fa-chart-line"></i> Progress
+    </NavLink>
+    <NavLink href="/food/list" Match="NavLinkMatch.All">
+        <i class="fas fa-utensils"></i> Food
+    </NavLink>
+    <NavLink href="@($"/users/{UserId}/consumptions")" Match="NavLinkMatch.All">
+        <i class="fas fa-cookie-bite"></i> Consumptions
+    </NavLink>
+    <NavLink href="/sign-out" Match="NavLinkMatch.All">
+        <i class="fas fa-sign-out-alt"></i> Logout
+    </NavLink>
+</div>
+
+@code {
+    private string UserId;
+
+    private string ImgSrc = "/images/default-profile.png";
+
+    protected override async Task OnInitializedAsync()
+    {
+        User user = await LocalStorage.GetItemAsync<User>("user");
+        UserId = user.Id;
+
+        if (user.ProfilePicture is not null)
+        {
+            ImgSrc = user.ProfilePicture;
+        }
+
+        await base.OnInitializedAsync();
+    }
+}

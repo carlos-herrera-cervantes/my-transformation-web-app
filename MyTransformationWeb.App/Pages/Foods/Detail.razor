@@ -1,0 +1,113 @@
+@page "/food/list/{id}"
+@inject IFoodService foodService
+@inject NavigationManager navigationManager
+
+<div class="row">
+    <Nav></Nav>
+    <div>
+        <FoodHeader></FoodHeader>
+        <h2>Food detail</h2>
+        <ErrorBoundary @ref="@errorBoundary">
+            <ChildContent>
+                @if (food is null)
+                {
+                    <Loader></Loader>
+                }
+                else
+                {
+                    <EditForm Model="food" OnValidSubmit="HandleValidSubmitAsync">
+                        <div class="row-2">
+                            <div>
+                                <div>
+                                    <label class="form-label" for="name">Name</label>
+                                    <InputText class="form-input" autocomplete="off" placeholder="name" id="name" @bind-Value="food.Name" />
+                                </div>
+                                <div>
+                                    <label class="form-label" for="measurement_unit">Measurement unit</label>
+                                    <InputSelect class="form-input" @bind-Value="food.MeasurementUnit">
+                                        <option value="@selectedMeasurementUnit">@selectedMeasurementUnit</option>
+                                        @foreach (var measurementUnit in measurementUnits)
+                                        {
+                                            <option value="@measurementUnit">@measurementUnit</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                                <div>
+                                    <label class="form-label" for="portion">Portion</label>
+                                    <InputNumber class="form-input" placeholder="0" id="portion" @bind-Value="food.Portion" />
+                                </div>
+                                <div>
+                                    <label class="form-label" for="calories">Calories (kcal)</label>
+                                    <InputNumber class="form-input" placeholder="0" id="calories" @bind-Value="food.Calories" />
+                                </div>
+                                <div>
+                                    <label class="form-label" for="protein">Protein (gr)</label>
+                                    <InputNumber class="form-input" placeholder="0" id="protein" @bind-Value="food.Protein" />
+                                </div>
+                            </div>
+                            <div>
+                                <div>
+                                    <label class="form-label" for="carbs">Carbs (gr)</label>
+                                    <InputNumber class="form-input" placeholder="0" id="carbs" @bind-Value="food.Carbs" />
+                                </div>
+                                <div>
+                                    <label class="form-label" for="fats">Fats (gr)</label>
+                                    <InputNumber class="form-input" placeholder="0" id="fats" @bind-Value="food.Fats" />
+                                </div>
+                                <div>
+                                    <label class="form-label" for="created_at">Created At</label>
+                                    <input class="form-input" type="text" id="created_at" @bind="food.CreatedAt" readonly />
+                                </div>
+                                <div>
+                                    <label class="form-label" for="updated_at">Updated At</label>
+                                    <input class="form-input" type="text" id="updated_at" @bind="food.UpdatedAt" readonly />
+                                </div>
+                                <div>
+                                    <button class="form-button dark-background white-text" type="submit">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </EditForm>
+                }
+            </ChildContent>
+            <ErrorContent Context="ex">
+                <div class="box-error">
+                    <p>@ex.Message</p>
+                    <button class="form-button-error" @onclick="Recover"><i class="fas fa-undo-alt"></i></button>
+                </div>
+            </ErrorContent>
+        </ErrorBoundary>
+    </div>
+</div>
+
+@code {
+    private Food food = null;
+
+    protected ErrorBoundary errorBoundary = default;
+
+    private IEnumerable<string> measurementUnits = new List<string> { "gr", "ml", "unit" };
+
+    private string selectedMeasurementUnit;
+
+    [Parameter]
+    public string Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        food = await foodService.GetAsync(Id);
+        selectedMeasurementUnit = measurementUnits.FirstOrDefault(mu => mu == food.MeasurementUnit);
+        measurementUnits = measurementUnits.Where(mu => mu != food.MeasurementUnit);
+        await base.OnInitializedAsync();
+    }
+
+    private async Task HandleValidSubmitAsync()
+    {
+        await foodService.UpdateAsync(Id, food);
+        navigationManager.NavigateTo("/food/list");
+    }
+
+    protected void Recover()
+    {
+        errorBoundary?.Recover();
+    }
+}

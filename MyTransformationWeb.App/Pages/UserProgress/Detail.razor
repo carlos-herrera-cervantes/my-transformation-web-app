@@ -1,0 +1,101 @@
+@page "/users/{UserId}/progress/{Id}"
+@inject IExerciseService exerciseService
+@inject IUserProgressService userProgressService
+@inject NavigationManager NavigationManager
+
+<div class="row">
+    <Nav></Nav>
+    <div>
+        <UserProgressHeader></UserProgressHeader>
+        <h2>Progress detail</h2>
+        @if (userEvolution is null)
+        {
+            <Loader></Loader>
+        }
+        else
+        {
+            <EditForm Model="userEvolution" OnValidSubmit="HandleValidSubmitAsync">
+                <div class="row-2">
+                    <div>
+                        <div>
+                            <label class="form-label" for="exercise">Exercise</label>
+                            <InputSelect class="form-input" @bind-Value="userEvolution.ExerciseId">
+                                <option value="@userEvolution.ExerciseId">@selectedExercise</option>
+                                @foreach (var exercise in exercises)
+                                {
+                                    <option value="@exercise.Id">@exercise.Name</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div>
+                            <label class="form-label" for="weight">Weight</label>
+                            <InputNumber class="form-input" placeholder="0" id="weight" @bind-Value="userEvolution.Weight" />
+                        </div>
+                        <div>
+                            <label class="form-label" for="measurement_unit">Measurement unit</label>
+                            <InputSelect class="form-input" @bind-Value="userEvolution.MeasurementUnit">
+                                <option value="@userEvolution.MeasurementUnit">@userEvolution.MeasurementUnit</option>
+                                @foreach (var measurementUnit in measurementUnits)
+                                {
+                                    <option value="@measurementUnit">@measurementUnit</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div>
+                            <label class="form-label" for="reps">Reps</label>
+                            <InputNumber class="form-input" placeholder="0" id="reps" @bind-Value="userEvolution.Reps" />
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            <label class="form-label" for="comment">Comment</label>
+                            <textarea class="form-input" placeholder="Type something" id="comment" @bind="userEvolution.Comment" />
+                        </div>
+                        <div>
+                            <label class="form-label" for="moment">Moment</label>
+                            <InputDate class="form-input" id="moment" @bind-Value="userEvolution.Moment" />
+                        </div>
+                        <div>
+                            <button class="form-button dark-background white-text" type="submit">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string UserId { get; set; }
+
+    [Parameter]
+    public string Id { get; set; }
+
+    private UserEvolution userEvolution = new();
+
+    private IEnumerable<Exercise> exercises = new List<Exercise>();
+
+    private IEnumerable<string> measurementUnits = new List<string>();
+
+    private string selectedExercise;
+
+    protected override async Task OnInitializedAsync()
+    {
+        userEvolution = await userProgressService.GetByIdAsync(UserId, Id);
+        IEnumerable<Exercise> exerciseCatalog = await exerciseService.GetAllAsync();
+        IEnumerable<string> measurementUnitCatalog = new List<string>{ "kg", "lbs" };
+
+        selectedExercise = exerciseCatalog.FirstOrDefault(e => e.Id == userEvolution.ExerciseId)?.Name;
+        exercises = exerciseCatalog.Where(e => e.Id != userEvolution.ExerciseId);
+        measurementUnits = measurementUnitCatalog.Where(mu => mu != userEvolution.MeasurementUnit);
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task HandleValidSubmitAsync()
+    {
+        await userProgressService.UpdateAsync(UserId, Id, userEvolution);
+        NavigationManager.NavigateTo($"/users/{UserId}/progress");
+    }
+}

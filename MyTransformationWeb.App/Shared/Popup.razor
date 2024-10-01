@@ -1,0 +1,41 @@
+@{
+    string show = IsVisible ? "show" : "hide";
+}
+
+<div class="@show modal">
+    <div class="modal-content">
+        <strong>@HeaderText</strong>
+        <button class="modal-btn-close" @onclick="Close">X</button>
+        <p>@BodyText</p>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsVisibleChanged { get; set; }
+
+    [Parameter]
+    public string HeaderText { get; set; }
+
+    [Parameter]
+    public string BodyText { get; set; }
+
+    public void Show(string bodyText, string headerText)
+    {
+        BodyText = bodyText;
+        HeaderText = headerText;
+        IsVisible = true;
+        StateHasChanged();
+    }
+
+    public void Close()
+    {
+        BodyText = string.Empty;
+        HeaderText = string.Empty;
+        IsVisible = false;
+        StateHasChanged();
+    }
+}

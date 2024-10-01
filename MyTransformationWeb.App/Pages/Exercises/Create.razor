@@ -1,0 +1,66 @@
+@page "/exercise"
+@inject IExerciseService exerciseService
+@inject NavigationManager navigationManager
+
+<div class="row">
+    <Nav></Nav>
+    <div>
+        <Header></Header>
+        <h2>New exercise</h2>
+        <ErrorBoundary @ref="@errorBoundary">
+            <ChildContent>
+                <EditForm Model="exercise" OnValidSubmit="HandleValidSubmitAsync">
+                    <div class="row-2">
+                        <div>
+                            <div>
+                                <label class="form-label" for="name">Name</label>
+                                <InputText class="form-input" autocomplete="off" type="text" placeholder="name" id="name" @bind-Value="exercise.Name" />
+                            </div>
+                            <div>
+                                <label class="form-label" for="muscle_groups">Muscle Groups</label>
+                                <textarea class="form-input" placeholder="muscle groups" id="muscle_groups" @bind="exercise.MuscleGroups" />
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <label class="form-label" for="file"></label>
+                                <InputFile class="form-file" id="file" />
+                            </div>
+                            <div>
+                                <button class="form-button dark-background white-text" type="submit">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </EditForm>
+            </ChildContent>
+            <ErrorContent Context="ex">
+                <div class="box-error">
+                    <p>@ex.Message</p>
+                    <button class="form-button-error" @onclick="Recover"><i class="fas fa-undo-alt"></i></button>
+                </div>
+            </ErrorContent>
+        </ErrorBoundary>
+    </div>
+</div>
+
+@code {
+    private Exercise exercise = new();
+
+    protected ErrorBoundary errorBoundary = default;
+
+    private async Task HandleValidSubmitAsync()
+    {
+        using var multipartFormDataContent = new MultipartFormDataContent();
+        multipartFormDataContent.Headers.ContentType.MediaType = "multipart/form-data";
+        multipartFormDataContent.Add(new StringContent(exercise.Name), "Name");
+        multipartFormDataContent.Add(new StringContent(exercise.MuscleGroups), "MuscleGroups");
+
+        await exerciseService.CreateAsync(multipartFormDataContent);
+        navigationManager.NavigateTo("/exercises");
+    }
+
+    protected void Recover()
+    {
+        errorBoundary?.Recover();
+    }
+}

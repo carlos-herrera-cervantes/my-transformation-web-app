@@ -1,0 +1,120 @@
+@page "/users/{UserId}/consumptions"
+@inject IConsumptionService consumptionService
+@inject ILocalStorageService LocalStorage
+@inject IPaginationService<Consumption> paginationService
+@inject ILogger<List> logger
+
+<div class="row">
+    <Nav></Nav>
+    <div>
+        <ConsumptionHeader></ConsumptionHeader>
+        <h2>Consumptions</h2>
+        <div class="history-box">
+            @if (consumptions is null)
+            {
+                <Loader></Loader>
+            }
+            else
+            {
+                <table class="fl-table">
+                    <thead class="special-head">
+                        <tr>
+                            <th>Food</th>
+                            <th>Calories (kcal)</th>
+                            <th>Creation</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (consumptions.Count() == 0)
+                        {
+                            <tr>
+                                <td colspan="4">No data</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var consumption in pages[currentPage])
+                            {
+                                <tr>
+                                    <td>@consumption.PartialFood.Name</td>
+                                    <td>@consumption.Calories</td>
+                                    <td>@consumption.Moment.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>
+                                        <NavLink href="@($"/users/{UserId}/consumptions/{consumption.Id}")">
+                                            <i class="fa fa-info-circle"></i> Detail
+                                        </NavLink>
+                                    </td>
+                                    <td>
+                                        <button class="form-button-destroy" @onclick="@(async () => await OnDeleteAsync(consumption.Id))"><i class="fas fa-trash-alt"></i> Delete</button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+        <div class="@($"small-margin-top")">
+            <button class="extra-small-width form-button dark-background white-text" @onclick="PreviousPage">&#60;</button>
+            <label>@currentPage</label>
+            <button class="extra-small-width form-button dark-background white-text" @onclick="NextPage">&#62;</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string UserId { get; set; }
+
+    private IEnumerable<Consumption> consumptions = [];
+
+    private Dictionary<int, IEnumerable<Consumption>> pages = [];
+
+    private int currentPage = 1;
+
+    private int maxElementsByPage = 10;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var start = DateTime.Today;
+        var pageable = new Pageable
+        {
+            From = start,
+            To = start.AddDays(1).AddTicks(-1)
+        };
+
+        try
+        {
+            consumptions = await consumptionService.GetAllAsync(UserId, pageable);
+            pages = paginationService.GetPages(maxElementsByPage, consumptions);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error loading consumptions");
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task OnDeleteAsync(string id)
+    {
+        await consumptionService.DeleteAsync(UserId, id);
+        consumptions = consumptions.Where(e => e.Id != id);
+        pages = paginationService.GetPages(maxElementsByPage, consumptions);
+        StateHasChanged();
+    }
+
+    private void NextPage()
+    {
+        currentPage = paginationService.NextPage();
+        StateHasChanged();
+    }
+
+    private void PreviousPage()
+    {
+        currentPage = paginationService.PreviousPage();
+        StateHasChanged();
+    }
+}
