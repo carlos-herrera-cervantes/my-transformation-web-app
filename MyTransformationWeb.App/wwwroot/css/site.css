@@ -231,14 +231,14 @@ a {
 
 .history-box {
     height: 50%;
-    box-shadow: rgb(38, 57, 77) -10px -20px 30px 20px;
+    /*box-shadow: rgb(38, 57, 77) -0px -20px 50px 0px;*/
     overflow-y: auto;
 }
 
 .navigation {
     background-color: #2e4053;
-    /* height: calc(100% - 5%); */
-    height: 100%;
+    height: calc(100% + 20%);
+    /* height: 100%; */
     /* overflow-y: auto; */
 }
 
@@ -476,6 +476,70 @@ a {
     transition: 1s;
 }
 
+.calories-button {
+    background-color: rgba(255, 206, 86, 0.2);
+    color: rgb(255, 255, 255);
+    border: 2px solid rgb(255, 206, 86);
+    border-radius: 0.2rem;
+    padding: 00.5rem;
+    width: 10%;
+    cursor: pointer;
+    transition: 1s;
+}
+
+.calories-button:hover {
+    background-color: rgb(255, 206, 86);
+    transition: 1s;
+}
+
+.fats-button {
+    background-color: rgba(255, 99, 132, 0.2);
+    color: rgb(255, 255, 255);
+    border: 2px solid rgb(255, 99, 132);
+    border-radius: 0.2rem;
+    padding: 00.5rem;
+    width: 10%;
+    cursor: pointer;
+    transition: 1s;
+}
+
+.fats-button:hover {
+    background-color: rgb(255, 99, 132);
+    transition: 1s;
+}
+
+.carbs-button {
+    background-color: rgba(72, 201, 176, 0.2);
+    color: rgb(255, 255, 255);
+    border: 2px solid rgb(72, 201, 176);
+    border-radius: 0.2rem;
+    padding: 00.5rem;
+    width: 10%;
+    cursor: pointer;
+    transition: 1s;
+}
+
+.carbs-button:hover {
+    background-color: rgb(72, 201, 176);
+    transition: 1s;
+}
+
+.protein-button {
+    background-color: rgba(84, 153, 199, 0.2);
+    color: rgb(255, 255, 255);
+    border: 2px solid rgb(84, 153, 199);
+    border-radius: 0.2rem;
+    padding: 00.5rem;
+    width: 10%;
+    cursor: pointer;
+    transition: 1s;
+}
+
+.protein-button:hover {
+    background-color: rgb(84, 153, 199);
+    transition: 1s;
+}
+
 /* grid */
 
 .row {
@@ -521,6 +585,10 @@ a {
 
 .small-margin-top {
     margin-top: 5%;
+}
+
+.small-margin-bottom {
+    margin-bottom: 5%;
 }
 
 .spectacular-ad {

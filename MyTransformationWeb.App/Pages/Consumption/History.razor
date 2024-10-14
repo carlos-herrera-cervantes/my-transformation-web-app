@@ -1,0 +1,268 @@
+@page "/users/{UserId}/consumptions/history"
+@inject IConsumptionResultService consumptionResultService
+@inject ILogger<History> logger
+@inject NavigationManager navigationManager
+
+<div class="row">
+    <Nav></Nav>
+    <div>
+        <h2>History</h2>
+        <div>
+            <label class="form-label-inline" for="from">From</label>
+            <InputDate class="form-input-inline extra-small-width" id="from" @bind-Value="from" />
+            <label class="form-label-inline" for="to">To</label>
+            <InputDate class="form-input-inline extra-small-width" id="to" @bind-Value="to" />
+            <button class="form-button-error" @onclick="GetByIntervalAsync"><i class="fas fa-undo-alt"></i></button>
+        </div>
+        @if (history.Count() > 0)
+        {
+             <div class="content-center small-margin-top">
+                <Chart Config="lineChartConfig" @ref="linearChart"></Chart>
+            </div>
+            <div class="small-margin-top">
+                <button class="protein-button" @onclick="ShowProtein">protein</button>
+                <button class="carbs-button" @onclick="ShowCarbs">carbs</button>
+                <button class="fats-button" @onclick="ShowFats">fats</button>
+                <button class="calories-button" @onclick="ShowCalories">calories</button>
+            </div>
+            <div class="small-width content-center small-margin-top info-box">
+                <i class="fas fa-info-circle"></i> Comment: @comment
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string UserId { get; set; }
+
+    private DateTime from = DateTime.Now.Subtract(TimeSpan.FromDays(6));
+
+    private DateTime to = DateTime.Now.AddDays(1);
+
+    private LineChartConfig lineChartConfig = new LineChartConfig();
+
+    private Chart linearChart = new Chart();
+
+    private string comment = "No comment";
+
+    private IEnumerable<ConsumptionResult> history = [];
+
+    private bool showCalories = true;
+
+    private bool showProtein = true;
+
+    private bool showCarbs = true;
+
+    private bool showFats = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetByIntervalAsync();
+        await base.OnInitializedAsync();
+    }
+
+    private async Task ShowCalories()
+    {
+        showCalories = !showCalories;
+        await GetByIntervalAsync();
+        StateHasChanged();
+    }
+
+    private async Task ShowFats()
+    {
+        showFats = !showFats;
+        await GetByIntervalAsync();
+        StateHasChanged();
+    }
+
+    private async Task ShowCarbs()
+    {
+        showCarbs = !showCarbs;
+        await GetByIntervalAsync();
+        StateHasChanged();
+    }
+
+    private async Task ShowProtein()
+    {
+        showProtein = !showProtein;
+        await GetByIntervalAsync();
+        StateHasChanged();
+    }
+
+    private async Task GetByIntervalAsync()
+    {
+        var pageable = new Pageable
+        {
+            From = from,
+            To = to
+        };
+        history = await consumptionResultService.GetAllAsync(UserId, pageable);
+
+        lineChartConfig = new LineChartConfig()
+        {
+            Options = new Options()
+            {
+                OnHoverAsync = OnHoverAsync,
+                OnClickAsync = OnClickAsync,
+                Responsive = true,
+                MaintainAspectRatio = false,
+                RegisterDataLabels = true,
+                Animations = new Animations()
+                {
+                    Tension = new Tension()
+                    {
+                        Duration = 1000,
+                        Easing = "linear",
+                        From = 1,
+                        To = 0,
+                        Loop = true
+                    }
+                },
+                Plugins = new Plugins()
+                {
+                    Legend = new Legend()
+                    {
+                        Align = Align.Center,
+                        Display = false,
+                        Position = LegendPosition.Bottom
+                    }
+                }
+            }
+        };
+
+        var protein = new List<decimal?>();
+        var carbs = new List<decimal?>();
+        var fats = new List<decimal?>();
+        var calories = new List<decimal?>();
+
+        foreach (var consumption in history)
+        {
+            lineChartConfig.Data.Labels.Add(consumption.Moment);
+            protein.Add((decimal)consumption.Protein);
+            carbs.Add((decimal)consumption.Carbs);
+            fats.Add((decimal)consumption.Fats);
+            calories.Add((decimal)consumption.Calories);
+        }
+
+        if (showProtein)
+        {
+            lineChartConfig.Data.Datasets.Add(new LineDataset()
+            {
+                Label = "Protein",
+                Data = protein,
+                BorderColor = "rgb(84, 153, 199)",
+                Fill = true,
+                PointRadius= 5,
+                BackgroundColor = "rgba(84, 153, 199, 0.2)",
+                DataLabels = new DataLabels()
+                {
+                    BackgroundColor = "rgba(84, 153, 199, 0.2)",
+                    BorderRadius = 4,
+                    Color = "white",
+                    Font = new Font()
+                    {
+                        Weight = "bold"
+                    },
+                    Padding = new Padding(6)
+                }
+            });
+        }
+
+        if (showCarbs)
+        {
+            lineChartConfig.Data.Datasets.Add(new LineDataset()
+            {
+                Label = "Carbs",
+                Data = carbs,
+                BorderColor = "rgb(72, 201, 176)",
+                Fill = true,
+                PointRadius= 5,
+                BackgroundColor = "rgba(72, 201, 176, 0.2)",
+                DataLabels = new DataLabels()
+                {
+                    BackgroundColor = "rgba(72, 201, 176, 0.2)",
+                    BorderRadius = 4,
+                    Color = "white",
+                    Font = new Font()
+                    {
+                        Weight = "bold"
+                    },
+                    Padding = new Padding(6)
+                }
+            });
+        }
+
+        if (showFats)
+        {
+            lineChartConfig.Data.Datasets.Add(new LineDataset()
+            {
+                Label = "Fats",
+                Data = fats,
+                BorderColor = "rgb(255, 99, 132)",
+                Fill = true,
+                PointRadius= 5,
+                BackgroundColor = "rgba(255, 99, 132, 0.2)",
+                DataLabels = new DataLabels()
+                {
+                    BackgroundColor = "rgba(255, 99, 132, 0.2)",
+                    BorderRadius = 4,
+                    Color = "white",
+                    Font = new Font()
+                    {
+                        Weight = "bold"
+                    },
+                    Padding = new Padding(6)
+                }
+            });
+        }
+
+        if (showCalories)
+        {
+            lineChartConfig.Data.Datasets.Add(new LineDataset()
+            {
+                Label = "Calories",
+                Data = calories,
+                BorderColor = "rgb(255, 206, 86)",
+                Fill = true,
+                PointRadius= 5,
+                BackgroundColor = "rgba(255, 206, 86, 0.2)",
+                DataLabels = new DataLabels()
+                {
+                    BackgroundColor = "rgba(255, 206, 86, 0.2)",
+                    BorderRadius = 4,
+                    Color = "white",
+                    Font = new Font()
+                    {
+                        Weight = "bold"
+                    },
+                    Padding = new Padding(6)
+                }
+            });
+        }
+    }
+
+    private ValueTask OnHoverAsync(HoverContext ctx)
+    {
+        var consumptionComment = history.ElementAt((int)ctx.DataX)?.Comment;
+
+        if (!string.IsNullOrEmpty(consumptionComment))
+        {
+            comment = consumptionComment;
+        }
+        else
+        {
+            comment = "No comment";
+        }
+
+        StateHasChanged();
+        return ValueTask.CompletedTask;
+    }
+
+    private ValueTask OnClickAsync(CallbackGenericContext value)
+    {
+        var id = history.ElementAt((int)value.DataIndex)?.Id;
+        navigationManager.NavigateTo($"/users/{UserId}/consumptions/history/{id}/detail");
+        return ValueTask.CompletedTask;
+    }
+}

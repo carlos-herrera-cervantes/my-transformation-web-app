@@ -108,7 +108,7 @@
 
     private Chart Chart = new Chart();
 
-    private DateTime From = DateTime.Now.Subtract(TimeSpan.FromDays(29));
+    private DateTime From = DateTime.Now.Subtract(TimeSpan.FromDays(59));
 
     private DateTime To = DateTime.Now.AddDays(1);
 
@@ -173,9 +173,9 @@
             return;
         }
 
-        if (To.Subtract(From).TotalDays > 31)
+        if (To.Subtract(From).TotalDays > 62)
         {
-            Popup.Show("The interval must be less than 30 days", "Info");
+            Popup.Show("The interval must be less than 60 days", "Info");
             return;
         }
 

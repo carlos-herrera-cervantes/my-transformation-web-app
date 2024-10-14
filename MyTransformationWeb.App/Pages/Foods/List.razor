@@ -8,6 +8,9 @@
     <div>
         <FoodHeader></FoodHeader>
         <h2>Food</h2>
+        <div>
+            <input class="form-input" type="text" placeholder="search food" @bind="selectedFood" @oninput="OnTextChanged" />
+        </div>
         <div class="history-box">
             @if (food is null)
             {
@@ -64,17 +67,24 @@
 @code {
     private IEnumerable<Food> food = new List<Food>();
 
+    private IEnumerable<Food> backupFood = new List<Food>();
+
     private Dictionary<int, IEnumerable<Food>> pages = new Dictionary<int, IEnumerable<Food>>();
 
     private int currentPage = 1;
 
     private int maxElementsByPage = 10;
 
+    private string selectedFood = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            food = await foodService.GetAllAsync();
+            var queryResult = await foodService.GetAllAsync();
+
+            food = queryResult;
+            backupFood = queryResult;
             pages = paginationService.GetPages(maxElementsByPage, food);
         }
         catch (Exception ex)
@@ -89,7 +99,15 @@
     {
         await foodService.DeleteAsync(id);
         food = food.Where(e => e.Id != id);
+        backupFood = backupFood.Where(e => e.Id != id);
         pages = paginationService.GetPages(maxElementsByPage, food);
+        StateHasChanged();
+    }
+
+    private void OnTextChanged(ChangeEventArgs e)
+    {
+        var resp = backupFood.Where(f => f.Name.ToLower().Contains(e.Value.ToString()));
+        pages = paginationService.GetPages(maxElementsByPage, resp);
         StateHasChanged();
     }
 

@@ -7,8 +7,11 @@
     <div>
         <Header></Header>
         <h2>Exercises</h2>
+        <div>
+            <input class="form-input" type="text" placeholder="search exercise" @bind="selectedExercise" @oninput="OnTextChanged" />
+        </div>
         <div class="history-box">
-            @if (Exercises is null)
+            @if (exercises is null)
             {
                 <Loader></Loader>
             }
@@ -24,7 +27,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if (Exercises.Count() == 0)
+                        @if (exercises.Count() == 0)
                         {
                             <tr>
                                 <td colspan="4">No data</td>
@@ -32,7 +35,7 @@
                         }
                         else
                         {
-                            foreach (var exercise in Pages[CurrentPage])
+                            foreach (var exercise in pages[currentPage])
                             {
                                 <tr>
                                     <td>@exercise.Name</td>
@@ -54,45 +57,61 @@
         </div>
         <div class="small-margin-top">
             <button class="extra-small-width form-button dark-background white-text" @onclick="PreviousPage">&#60;</button>
-            <label>@CurrentPage</label>
+            <label>@currentPage</label>
             <button class="extra-small-width form-button dark-background white-text" @onclick="NextPage">&#62;</button>
         </div>
     </div>
 </div>
 
 @code {
-    private IEnumerable<Exercise> Exercises = new List<Exercise>();
+    private IEnumerable<Exercise> exercises = new List<Exercise>();
 
-    private Dictionary<int, IEnumerable<Exercise>> Pages = new Dictionary<int, IEnumerable<Exercise>>();
+    private IEnumerable<Exercise> backupExercises = new List<Exercise>();
 
-    private int CurrentPage = 1;
+    private Dictionary<int, IEnumerable<Exercise>> pages = new Dictionary<int, IEnumerable<Exercise>>();
 
-    private int MaxElementsByPage = 10;
+    private int currentPage = 1;
+
+    private int maxElementsByPage = 10;
+
+    private string selectedExercise = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        Exercises = await exerciseService.GetAllAsync();
-        Pages = paginationService.GetPages(MaxElementsByPage, Exercises);
+        var queryResult = await exerciseService.GetAllAsync();
+
+        exercises = queryResult;
+        backupExercises = queryResult;
+        pages = paginationService.GetPages(maxElementsByPage, exercises);
+
         await base.OnInitializedAsync();
     }
 
     private async Task OnDeleteAsync(string id)
     {
         await exerciseService.DeleteAsync(id);
-        Exercises = Exercises.Where(e => e.Id != id);
-        Pages = paginationService.GetPages(MaxElementsByPage, Exercises);
+        exercises = exercises.Where(e => e.Id != id);
+        backupExercises = backupExercises.Where(e => e.Id != id);
+        pages = paginationService.GetPages(maxElementsByPage, exercises);
+        StateHasChanged();
+    }
+
+    private void OnTextChanged(ChangeEventArgs e)
+    {
+        var resp = backupExercises.Where(f => f.Name.ToLower().Contains(e.Value.ToString()));
+        pages = paginationService.GetPages(maxElementsByPage, resp);
         StateHasChanged();
     }
 
     private void NextPage()
     {
-        CurrentPage = paginationService.NextPage();
+        currentPage = paginationService.NextPage();
         StateHasChanged();
     }
 
     private void PreviousPage()
     {
-        CurrentPage = paginationService.PreviousPage();
+        currentPage = paginationService.PreviousPage();
         StateHasChanged();
     }
 }
