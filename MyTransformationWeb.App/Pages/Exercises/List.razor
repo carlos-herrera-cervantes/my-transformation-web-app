@@ -22,7 +22,13 @@
                         <tr>
                             <th>Name</th>
                             <th>Creation</th>
-                            <th></th>
+                            <th>
+                                <div>
+                                    <button @onclick="PreviousPage">&#60;</button>
+                                    <label>@currentPage</label>
+                                    <button @onclick="NextPage">&#62;</button>
+                                </div>
+                            </th>
                             <th></th>
                         </tr>
                     </thead>
@@ -54,11 +60,6 @@
                     </tbody>
                 </table>
             }
-        </div>
-        <div class="small-margin-top">
-            <button class="extra-small-width form-button dark-background white-text" @onclick="PreviousPage">&#60;</button>
-            <label>@currentPage</label>
-            <button class="extra-small-width form-button dark-background white-text" @onclick="NextPage">&#62;</button>
         </div>
     </div>
 </div>

@@ -10,6 +10,12 @@
     <div>
         <ConsumptionHeader></ConsumptionHeader>
         <h2>Total consumed: @totalCalories kcal</h2>
+        <div class="medium-width">
+            <label class="form-label" for="selected_date">Select a date</label>
+            <InputDate class="form-input" id="selected_date" Value="selectedDate"
+                ValueExpression="() => selectedDate"
+                ValueChanged="@((DateTime value) => OnChangedDateAsync(value))" />
+        </div>
         @if (consumptions.Count() > 0)
         {
             <div class="small-width small-margin-bottom content-center">
@@ -90,6 +96,8 @@
 
     private int totalCalories;
 
+    private DateTime selectedDate = DateTime.Today;
+
     protected override async Task OnInitializedAsync()
     {
         var start = DateTime.Today;
@@ -113,11 +121,35 @@
         await base.OnInitializedAsync();
     }
 
+    private async Task OnChangedDateAsync(DateTime value)
+    {
+        selectedDate = value;
+        var pageable = new Pageable
+        {
+            From = value,
+            To = value.AddDays(1).AddTicks(-1)
+        };
+
+        try
+        {
+            consumptions = await consumptionService.GetAllAsync(UserId, pageable);
+            pages = paginationService.GetPages(maxElementsByPage, consumptions);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error loading consumptions");
+        }
+
+        await ConfigDonutChart();
+        StateHasChanged();
+    }
+
     private async Task OnDeleteAsync(string id)
     {
         await consumptionService.DeleteAsync(UserId, id);
         consumptions = consumptions.Where(e => e.Id != id);
         pages = paginationService.GetPages(maxElementsByPage, consumptions);
+        await ConfigDonutChart();
         StateHasChanged();
     }
 
@@ -139,7 +171,7 @@
 
         try
         {
-            var consumptionResult = await consumptionResultService.GetAsync(UserId, DateTime.Today.ToString("yyyy-MM-dd"));
+            var consumptionResult = await consumptionResultService.GetAsync(UserId, selectedDate.ToString("yyyy-MM-dd"));
             totalCalories = (int)consumptionResult.Calories;
             data = new List<decimal?> {
                 (decimal)consumptionResult.Protein,

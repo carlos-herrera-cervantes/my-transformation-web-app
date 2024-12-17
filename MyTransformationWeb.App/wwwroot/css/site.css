@@ -33,8 +33,8 @@ a {
 
 #logo {
     display: block;
-    width: 50%;
-    height: 50%;
+    width: 25%;
+    height: 25%;
     margin: auto;
     padding: 10% 0 0;
     background-position: center;
@@ -141,6 +141,8 @@ a {
 .fl-table tr:nth-child(even) {
     background: #34495E;
 }
+
+.fl-table tr:hover {background-color: coral;}
 
 /* aligns */
 
@@ -567,6 +569,11 @@ a {
 
 .extra-small-width {
     width: 10%;
+}
+
+.medium-width {
+    width: 40%;
+    margin: auto;
 }
 
 .small-width {

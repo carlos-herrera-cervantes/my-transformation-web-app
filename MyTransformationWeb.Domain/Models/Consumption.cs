@@ -5,7 +5,7 @@ namespace MyTransformationWeb.Domain.Models;
 public class ConsumptionCreation
 {
     [JsonProperty("quantity")]
-    public int Quantity { get; set; }
+    public float Quantity { get; set; }
 
     [JsonProperty("food_id")]
     public string FoodId { get; set; }
@@ -23,7 +23,7 @@ public class Consumption
     public string UserId { get; set; }
 
     [JsonProperty("quantity")]
-    public int Quantity { get; set; }
+    public float Quantity { get; set; }
 
     [JsonProperty("food_id")]
     public string FoodId { get; set; }

@@ -35,7 +35,13 @@
                         <tr>
                             <th>Exercise</th>
                             <th>Training date</th>
-                            <th></th>
+                            <th>
+                                <div>
+                                    <button @onclick="PreviousPage">&#60;</button>
+                                    <label>@CurrentPage</label>
+                                    <button @onclick="NextPage">&#62;</button>
+                                </div>
+                            </th>
                             <th></th>
                         </tr>
                     </thead>
@@ -75,11 +81,6 @@
         </div>
         <div class="@($"small-width content-center small-margin-top info-box {ShowChart}")">
             <i class="fas fa-info-circle"></i> Comment: @Comment
-        </div>
-        <div class="@($"small-margin-top {ShowTable}")">
-            <button class="extra-small-width form-button dark-background white-text" @onclick="PreviousPage">&#60;</button>
-            <label>@CurrentPage</label>
-            <button class="extra-small-width form-button dark-background white-text" @onclick="NextPage">&#62;</button>
         </div>
         <Popup @ref="Popup" />
     </div>
