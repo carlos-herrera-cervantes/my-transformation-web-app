@@ -97,8 +97,8 @@
         consumption.Moment = DateTime.Now;
         consumption.FoodId = food.FirstOrDefault()?.Id;
         selectedMeasurementUnit = food.FirstOrDefault()?.MeasurementUnit;
-        selectedHour = hours.FirstOrDefault();
-        selectedMinute = minutes.FirstOrDefault();
+        selectedHour = DateTime.Now.Hour.ToString("00");
+        selectedMinute = DateTime.Now.Minute.ToString("00");
 
         await base.OnInitializedAsync();
     }
