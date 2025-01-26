@@ -8,7 +8,8 @@ html {
     font-family: "Nunito";
     font-style: normal;
     font-weight: 400;
-    src: url('../fonts/nunito-v16-latin-regular.woff2') format('woff2');
+    /*src: url('../fonts/nunito-v16-latin-regular.woff2') format('woff2');*/
+    src: url('../fonts/BrutalistMono.ttf')
 }
 
 body {
@@ -600,6 +601,14 @@ a {
 
 .spectacular-ad {
     font-size: 400%;
+}
+
+.perfect-circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
 }
 
 /* animations */
