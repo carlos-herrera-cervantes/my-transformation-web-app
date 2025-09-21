@@ -126,6 +126,21 @@
                         Align = Align.Center,
                         Display = false,
                         Position = LegendPosition.Bottom
+                    },
+                    Zoom = new Zoom()
+                    {
+                        Enabled = true,
+                        Mode = "xy",
+                        ZoomOptions = new ZoomOptions()
+                        {
+                            Drag = new Drag()
+                            {
+                                Enabled = true,
+                                BackgroundColor = "rgba(255, 99, 132, 0.2)",
+                                BorderColor = "rgb(255, 99, 132)",
+                                BorderWidth = 1
+                            }
+                        }
                     }
                 }
             }
