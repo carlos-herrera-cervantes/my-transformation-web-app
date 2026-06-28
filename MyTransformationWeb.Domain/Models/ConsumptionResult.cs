@@ -22,6 +22,15 @@ public class ConsumptionResult
     [JsonProperty("fats")]
     public float Fats { get; set; }
 
+    [JsonProperty("sugar")]
+    public float Sugar { get; set; }
+
+    [JsonProperty("calcium")]
+    public float Calcium { get; set; }
+
+    [JsonProperty("sodium")]
+    public float Sodium { get; set; }
+
     [JsonProperty("moment")]
     public string Moment { get; set; }
 
