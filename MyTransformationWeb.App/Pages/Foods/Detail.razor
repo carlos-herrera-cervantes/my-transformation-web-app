@@ -44,6 +44,10 @@
                                     <label class="form-label" for="protein">Protein (gr)</label>
                                     <InputNumber class="form-input" placeholder="0" id="protein" @bind-Value="food.Protein" />
                                 </div>
+                                <div>
+                                    <label class="form-label" for="sugar">Sugar (gr)</label>
+                                    <InputNumber class="form-input" placeholder="0" id="sugar" @bind-Value="food.Sugar" />
+                                </div>
                             </div>
                             <div>
                                 <div>
@@ -53,6 +57,14 @@
                                 <div>
                                     <label class="form-label" for="fats">Fats (gr)</label>
                                     <InputNumber class="form-input" placeholder="0" id="fats" @bind-Value="food.Fats" />
+                                </div>
+                                <div>
+                                    <label class="form-label" for="calcium">Calcium (mg)</label>
+                                    <input class="form-input" type="text" id="calcium" @bind="food.Calcium" readonly />
+                                </div>
+                                <div>
+                                    <label class="form-label" for="sodium">Sodium (mg)</label>
+                                    <input class="form-input" type="text" id="sodium" @bind="food.Sodium" readonly />
                                 </div>
                                 <div>
                                     <label class="form-label" for="created_at">Created At</label>
