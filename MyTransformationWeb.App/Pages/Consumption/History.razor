@@ -24,6 +24,9 @@
                 <button class="carbs-button" @onclick="ShowCarbs">carbs</button>
                 <button class="fats-button" @onclick="ShowFats">fats</button>
                 <button class="calories-button" @onclick="ShowCalories">calories</button>
+                <button class="sugar-button" @onclick="ShowShugar">sugar</button>
+                <button class="calcium-button" @onclick="ShowCalcium">calcium</button>
+                <button class="sodium-button" @onclick="ShowSodium">sodium</button>
             </div>
             <div class="small-width content-center small-margin-top info-box">
                 <i class="fas fa-info-circle"></i> Comment: @comment
@@ -56,6 +59,12 @@
 
     private bool showFats = true;
 
+    private bool showSugar = true;
+
+    private bool showCalcium = true;
+
+    private bool showSodium = true;
+
     protected override async Task OnInitializedAsync()
     {
         await GetByIntervalAsync();
@@ -86,6 +95,27 @@
     private async Task ShowProtein()
     {
         showProtein = !showProtein;
+        await GetByIntervalAsync();
+        StateHasChanged();
+    }
+
+    private async Task ShowShugar()
+    {
+        showSugar = !showSugar;
+        await GetByIntervalAsync();
+        StateHasChanged();
+    }
+
+    private async Task ShowCalcium()
+    {
+        showCalcium = !showCalcium;
+        await GetByIntervalAsync();
+        StateHasChanged();
+    }
+
+    private async Task ShowSodium()
+    {
+        showSodium = !showSodium;
         await GetByIntervalAsync();
         StateHasChanged();
     }
@@ -150,6 +180,9 @@
         var carbs = new List<decimal?>();
         var fats = new List<decimal?>();
         var calories = new List<decimal?>();
+        var sugar = new List<decimal?>();
+        var calcium = new List<decimal?>();
+        var sodium = new List<decimal?>();
 
         foreach (var consumption in history)
         {
@@ -158,13 +191,16 @@
             carbs.Add((decimal)consumption.Carbs);
             fats.Add((decimal)consumption.Fats);
             calories.Add((decimal)consumption.Calories);
+            sugar.Add((decimal)consumption.Sugar);
+            sodium.Add((decimal)consumption.Sodium);
+            calcium.Add((decimal)consumption.Calcium);
         }
 
         if (showProtein)
         {
             lineChartConfig.Data.Datasets.Add(new LineDataset()
             {
-                Label = "Protein",
+                Label = "Protein (gr)",
                 Data = protein,
                 BorderColor = "rgb(84, 153, 199)",
                 Fill = true,
@@ -188,7 +224,7 @@
         {
             lineChartConfig.Data.Datasets.Add(new LineDataset()
             {
-                Label = "Carbs",
+                Label = "Carbs (gr)",
                 Data = carbs,
                 BorderColor = "rgb(72, 201, 176)",
                 Fill = true,
@@ -212,7 +248,7 @@
         {
             lineChartConfig.Data.Datasets.Add(new LineDataset()
             {
-                Label = "Fats",
+                Label = "Fats (gr)",
                 Data = fats,
                 BorderColor = "rgb(255, 99, 132)",
                 Fill = true,
@@ -236,7 +272,7 @@
         {
             lineChartConfig.Data.Datasets.Add(new LineDataset()
             {
-                Label = "Calories",
+                Label = "Calories (kcal)",
                 Data = calories,
                 BorderColor = "rgb(255, 206, 86)",
                 Fill = true,
@@ -245,6 +281,78 @@
                 DataLabels = new DataLabels()
                 {
                     BackgroundColor = "rgba(255, 206, 86, 0.2)",
+                    BorderRadius = 4,
+                    Color = "white",
+                    Font = new Font()
+                    {
+                        Weight = "bold"
+                    },
+                    Padding = new Padding(6)
+                }
+            });
+        }
+
+        if (showSugar)
+        {
+            lineChartConfig.Data.Datasets.Add(new LineDataset()
+            {
+                Label = "Sugar (gr)",
+                Data = sugar,
+                BorderColor = "rgb(235, 80, 235)",
+                Fill = true,
+                PointRadius= 5,
+                BackgroundColor = "rgba(235, 80, 235, 0.2)",
+                DataLabels = new DataLabels()
+                {
+                    BackgroundColor = "rgba(235, 80, 235, 0.2)",
+                    BorderRadius = 4,
+                    Color = "white",
+                    Font = new Font()
+                    {
+                        Weight = "bold"
+                    },
+                    Padding = new Padding(6)
+                }
+            });
+        }
+
+        if (showCalcium)
+        {
+            lineChartConfig.Data.Datasets.Add(new LineDataset()
+            {
+                Label = "Calcium (mg)",
+                Data = calcium,
+                BorderColor = "rgb(98, 116, 142)",
+                Fill = true,
+                PointRadius= 5,
+                BackgroundColor = "rgba(98, 116, 142, 0.2)",
+                DataLabels = new DataLabels()
+                {
+                    BackgroundColor = "rgba(98, 116, 142, 0.2)",
+                    BorderRadius = 4,
+                    Color = "white",
+                    Font = new Font()
+                    {
+                        Weight = "bold"
+                    },
+                    Padding = new Padding(6)
+                }
+            });
+        }
+
+        if (showSodium)
+        {
+            lineChartConfig.Data.Datasets.Add(new LineDataset()
+            {
+                Label = "Sodium (mg)",
+                Data = sodium,
+                BorderColor = "rgb(142, 81, 255)",
+                Fill = true,
+                PointRadius= 5,
+                BackgroundColor = "rgba(142, 81, 255, 0.2)",
+                DataLabels = new DataLabels()
+                {
+                    BackgroundColor = "rgba(142, 81, 255, 0.2)",
                     BorderRadius = 4,
                     Color = "white",
                     Font = new Font()

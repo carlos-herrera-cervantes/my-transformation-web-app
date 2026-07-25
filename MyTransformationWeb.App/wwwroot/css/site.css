@@ -543,6 +543,54 @@ a {
     transition: 1s;
 }
 
+.sugar-button {
+    background-color: rgba(235, 80, 235, 0.2);
+    color: rgb(255, 255, 255);
+    border: 2px solid rgb(235, 80, 235);
+    border-radius: 0.2rem;
+    padding: 00.5rem;
+    width: 10%;
+    cursor: pointer;
+    transition: 1s;
+}
+
+.sugar-button:hover {
+    background-color: rgb(235, 80, 235);
+    transition: 1s;
+}
+
+.calcium-button {
+    background-color: rgba(98, 116, 142, 0.2);
+    color: rgb(255, 255, 255);
+    border: 2px solid rgb(98, 116, 142);
+    border-radius: 0.2rem;
+    padding: 00.5rem;
+    width: 10%;
+    cursor: pointer;
+    transition: 1s;
+}
+
+.calcium-button:hover {
+    background-color: rgb(98, 116, 142);
+    transition: 1s;
+}
+
+.sodium-button {
+    background-color: rgba(142, 81, 255, 0.2);
+    color: rgb(255, 255, 255);
+    border: 2px solid rgb(142, 81, 255);
+    border-radius: 0.2rem;
+    padding: 00.5rem;
+    width: 10%;
+    cursor: pointer;
+    transition: 1s;
+}
+
+.sodium-button:hover {
+    background-color: rgb(142, 81, 255);
+    transition: 1s;
+}
+
 /* grid */
 
 .row {

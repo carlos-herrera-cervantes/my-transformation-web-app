@@ -21,6 +21,9 @@
             <div class="small-width small-margin-bottom content-center">
                 <Chart Config="donutChartConfig" @ref="donutChart"></Chart>
             </div>
+            <div class="small-width small-margin-bottom content-center">
+                <Chart Config="micronutrientsHorizontalBarConfig" @ref="micronutrientsHorizontalBar"></Chart>
+            </div>
         }
         <div class="history-box">
             @if (consumptions is null)
@@ -98,6 +101,10 @@
 
     private DateTime selectedDate = DateTime.Today;
 
+    private BarChartConfig micronutrientsHorizontalBarConfig;
+
+    private Chart micronutrientsHorizontalBar;
+
     protected override async Task OnInitializedAsync()
     {
         var start = DateTime.Today;
@@ -167,16 +174,24 @@
 
     private async Task ConfigDonutChart()
     {
-        var data = new List<decimal?> { 0, 0, 0 };
+        var data = new List<decimal?> { 0, 0, 0, 0 };
+        var micronutrientsHorizontalBarData = new List<decimal?> { 0, 0 };
 
         try
         {
             var consumptionResult = await consumptionResultService.GetAsync(UserId, selectedDate.ToString("yyyy-MM-dd"));
             totalCalories = (int)consumptionResult.Calories;
-            data = new List<decimal?> {
+            data = new List<decimal?>
+            {
                 (decimal)consumptionResult.Protein,
                 (decimal)consumptionResult.Carbs,
-                (decimal)consumptionResult.Fats
+                (decimal)consumptionResult.Fats,
+                (decimal)consumptionResult.Sugar
+            };
+            micronutrientsHorizontalBarData = new List<decimal?>
+            {
+                (decimal)consumptionResult.Sodium,
+                (decimal)consumptionResult.Calcium
             };
         }
         catch (Exception ex)
@@ -192,14 +207,69 @@
                 MaintainAspectRatio = false,
             }
         };
-        donutChartConfig.Data.Labels = new List<string> { "Protein", "Carbs", "Fats" };
+        donutChartConfig.Data.Labels = new List<string> { "Protein (gr)", "Carbs (gr)", "Fats (gr)", "Sugar (gr)" };
         donutChartConfig.Data.Datasets.Add(new DoughnutDataset
         {
             Label = "Macronutrients",
             Data = data,
-            BackgroundColor = new List<string> { "rgba(84, 153, 199, 0.5)" , "rgba(72, 201, 176, 0.5)", "rgba(255, 99, 132, 0.5)"},
+            BackgroundColor = new List<string> {
+                "rgba(84, 153, 199, 0.5)",
+                "rgba(72, 201, 176, 0.5)",
+                "rgba(255, 99, 132, 0.5)",
+                "rgba(245, 235, 39, 0.5)"
+            },
             HoverOffset = 4,
             BorderWidth = 0
+        });
+
+        micronutrientsHorizontalBarConfig = new BarChartConfig
+        {
+            Options = new Options
+            {
+                IndexAxis = "y",
+                Responsive = true,
+                MaintainAspectRatio = false,
+                Plugins = new Plugins
+                {
+                    Legend = new Legend
+                    {
+                        Align = Align.Center,
+                        Display = false,
+                        Position = LegendPosition.Right
+                    }
+                },
+                Scales = new Dictionary<string, Axis>
+                {
+                    {
+                        Scales.XAxisId, new Axis
+                        {
+                            Stacked = true,
+                            Ticks = new Ticks
+                            {
+                                MaxRotation = 0,
+                                MinRotation = 0
+                            }
+                        }
+                    },
+                    {
+                        Scales.YAxisId, new Axis
+                        {
+                            Stacked = true
+                        }
+                    }
+                }
+            }
+        };
+        micronutrientsHorizontalBarConfig.Data.Labels = new List<string> { "Sodium (mg)", "Calcium (mg)" };
+        micronutrientsHorizontalBarConfig.Data.Datasets.Add(new BarDataset
+        {
+            Label = "mg",
+            Data = micronutrientsHorizontalBarData,
+            BackgroundColor = new List<string>
+            {
+                "rgba(245, 39, 101, 0.5)",
+                "rgba(39, 183, 245, 0.5)"
+            }
         });
     }
 }
