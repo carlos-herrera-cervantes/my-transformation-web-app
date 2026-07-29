@@ -474,6 +474,23 @@ a {
     width: 60%;
 }
 
+.form-add-button {
+    border: none;
+    background-color: rgba(27, 38, 54, 1);
+    color: white;
+    border-radius: 0.2rem;
+    padding: 00.5rem;
+    transition: 1s;
+    width: 60%;
+    cursor: pointer;
+}
+
+.form-add-button:hover {
+    color: #F0B27A;
+    transition: 1s;
+    cursor: pointer;
+}
+
 .form-button:hover {
     background-color: #F0B27A;
     transition: 1s;

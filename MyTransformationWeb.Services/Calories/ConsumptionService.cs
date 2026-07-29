@@ -105,6 +105,32 @@ public class ConsumptionService(IHttpClientFactory httpClientFactory, ILogger<Co
     }
 
     /// <summary>
+    /// This method is used to create a consumption for a user using a list of foods.
+    /// </summary>
+    /// <param name="userId">User ID as Object ID in MongoDB</param>
+    /// <param name="consumptionCreation">A list of Consumption object</param>
+    /// <returns>Task</returns>
+    /// <exception cref="Exception"></exception>
+    public async Task<List<Consumption>> CreateMealAsync(string userId, List<ConsumptionCreation> consumptions)
+    {
+        _httpClient.DefaultRequestHeaders.Clear();
+        _httpClient.DefaultRequestHeaders.Add("user-id", userId);
+        _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        var stringContent = new StringContent(JsonConvert.SerializeObject(consumptions), Encoding.UTF8, "application/json");
+        using HttpResponseMessage httpResponse = await _httpClient.PostAsync($"{CaloriesApi.BasePath}/consumptions/me/meal", stringContent);
+
+        if (!httpResponse.IsSuccessStatusCode)
+        {
+            _logger.LogError("Failed to create meal for user: {User}. Status code: {StatusCode}", userId, httpResponse.StatusCode);
+            throw new Exception("Failed to create meal");
+        }
+
+        string content = await httpResponse.Content.ReadAsStringAsync();
+
+        return JsonConvert.DeserializeObject<List<Consumption>>(content);
+    }
+
+    /// <summary>
     /// This method is used to delete a consumption by ID and user ID.
     /// </summary>
     /// <param name="userId">User ID as Object ID in MongoDB</param>
