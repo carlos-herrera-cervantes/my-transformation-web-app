@@ -10,5 +10,7 @@ public interface IConsumptionService
 
     Task<Consumption> CreateAsync(string userId, ConsumptionCreation consumptionCreation);
 
+    Task<List<Consumption>> CreateMealAsync(string userId, List<ConsumptionCreation> consumptions);
+
     Task DeleteAsync(string userId, string id);
 }

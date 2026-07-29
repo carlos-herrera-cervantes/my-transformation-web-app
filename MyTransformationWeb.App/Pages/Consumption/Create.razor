@@ -14,60 +14,100 @@
                     <div class="row-2">
                         <div>
                             <div class="tooltip-container">
-                                <span class="tooltip-text">The measurement unit for this food is @selectedMeasurementUnit</span>
-                                <label class="form-label" for="food">Food</label>
-                                <InputSelect class="form-input" ValueExpression="@(() => selectedMeasurementUnit)" ValueChanged="@((string value) => OnChangedSelect(value))">
-                                    @foreach (var element in food)
-                                    {
-                                        <option value="@element.Id">@element.Name</option>
-                                    }
-                                </InputSelect>
+                                <span class="tooltip-text">The measurement unit for this food is
+                                    @selectedMeasurementUnit</span>
+                                    <label class="form-label" for="food">Food</label>
+                                    <InputSelect class="form-input" ValueExpression="@(() => selectedMeasurementUnit)"
+                                                 ValueChanged="@((string value) => OnChangedSelect(value))">
+                                        @foreach (var element in food)
+                                        {
+                                            <option value="@element.Id">@element.Name</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                                <div>
+                                    <label class="form-label" for="quantity">Quantity (gr, ml, unit)</label>
+                                    <InputNumber class="form-input" placeholder="0" id="quantity"
+                                                 @bind-Value="consumption.Quantity" />
+                                </div>
+                                <div>
+                                    <label class="form-label" for="moment">Moment</label>
+                                    <InputDate class="form-input" id="moment" @bind-Value="consumption.Moment" />
+                                </div>
+                                <div>
+                                    <button class="form-add-button" type="button" @onclick="AddFood">
+                                        <i class="fas fa-plus-circle"></i> Add
+                                    </button>
+                                </div>
                             </div>
                             <div>
-                                <label class="form-label" for="quantity">Quantity (gr, ml, unit)</label>
-                                <InputNumber class="form-input" placeholder="0" id="quantity"
-                                    @bind-Value="consumption.Quantity" />
-                            </div>
-                            <div>
-                                <label class="form-label" for="moment">Moment</label>
-                                <InputDate class="form-input" id="moment" @bind-Value="consumption.Moment" />
+                                <div>
+                                    <label class="form-label" for="hour">Hour</label>
+                                    <InputSelect class="form-input" @bind-Value="selectedHour">
+                                        @foreach (var hour in hours)
+                                        {
+                                            <option value="@hour">@hour</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                                <div>
+                                    <label class="form-label" for="minute">Minute</label>
+                                    <InputSelect class="form-input" @bind-Value="selectedMinute">
+                                        @foreach (var minute in minutes)
+                                        {
+                                            <option value="@minute">@minute</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                                <div>
+                                        <button class="form-button dark-background white-text" type="submit">Submit</button>
+                                </div>
                             </div>
                         </div>
-                        <div>
-                            <div>
-                                <label class="form-label" for="hour">Hour</label>
-                                <InputSelect class="form-input" @bind-Value="selectedHour">
-                                    @foreach (var hour in hours)
-                                    {
-                                        <option value="@hour">@hour</option>
-                                    }
-                                </InputSelect>
-                            </div>
-                            <div>
-                                <label class="form-label" for="minute">Minute</label>
-                                <InputSelect class="form-input" @bind-Value="selectedMinute">
-                                    @foreach (var minute in minutes)
-                                    {
-                                        <option value="@minute">@minute</option>
-                                    }
-                                </InputSelect>
-                            </div>
-                            <div>
-                                <button class="form-button dark-background white-text" type="submit">Submit</button>
-                            </div>
-                        </div>
+                    </EditForm>
+                </ChildContent>
+                <ErrorContent Context="ex">
+                    <div class="box-error">
+                        <p>@ex.Message</p>
+                        <button class="form-button-error" @onclick="Recover"><i class="fas fa-undo-alt"></i></button>
                     </div>
-                </EditForm>
-            </ChildContent>
-            <ErrorContent Context="ex">
-                <div class="box-error">
-                    <p>@ex.Message</p>
-                    <button class="form-button-error" @onclick="Recover"><i class="fas fa-undo-alt"></i></button>
+                </ErrorContent>
+                </ErrorBoundary>
+                <table class="fl-table">
+                    <thead class="special-head">
+                        <tr>
+                            <th>Name</th>
+                            <th>Quantity</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (creations.Count() == 0)
+                        {
+                            <tr>
+                                <td colspan="4">No data</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var food in creations)
+                            {
+                                <tr>
+                                    <td>@food.Name</td>
+                                    <td>@food.Quantity @food.MeasurementUnit</td>
+                                    <td>
+                                        <button class="form-button-destroy"
+                                                @onclick="() => RemoveFood(food)"><i
+                                            class="fas fa-trash-alt"></i> Delete</button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                </table>
+                <Popup @ref="Popup" />
                 </div>
-            </ErrorContent>
-        </ErrorBoundary>
-    </div>
-</div>
+            </div>
 
 @code {
     [Parameter]
@@ -89,6 +129,10 @@
 
     protected ErrorBoundary errorBoundary = default;
 
+    private List<ConsumptionCreation> creations =[];
+
+    private Popup Popup;
+
     protected override async Task OnInitializedAsync()
     {
         var serviceResult = await foodService.GetAllAsync();
@@ -96,6 +140,7 @@
         food = serviceResult.OrderBy(f => f.Name);
         consumption.Moment = DateTime.Now;
         consumption.FoodId = food.FirstOrDefault()?.Id;
+        consumption.Name = food.FirstOrDefault()?.Name;
         selectedMeasurementUnit = food.FirstOrDefault()?.MeasurementUnit;
         selectedHour = DateTime.Now.Hour.ToString("00");
         selectedMinute = DateTime.Now.Minute.ToString("00");
@@ -105,8 +150,13 @@
 
     private async Task HandleValidSubmitAsync()
     {
-        consumption.Moment = DateTime.Parse($"{consumption.Moment:yyyy-MM-dd}T{selectedHour}:{selectedMinute}");
-        await consumptionService.CreateAsync(UserId, consumption);
+        if (creations.Count <= 0)
+        {
+            Popup.Show("Can't create a meal with empty foods", "Violation");
+            return;
+        }
+
+        await consumptionService.CreateMealAsync(UserId, creations);
         NavigationManager.NavigateTo($"/users/{UserId}/consumptions");
     }
 
@@ -118,7 +168,31 @@
     private Task OnChangedSelect(string value)
     {
         consumption.FoodId = value;
+        consumption.Name = food.FirstOrDefault(f => f.Id == value)?.Name;
         selectedMeasurementUnit = food.FirstOrDefault(f => f.Id == value)?.MeasurementUnit;
         return Task.CompletedTask;
+    }
+
+    private void AddFood()
+    {
+        if (consumption.Quantity <= 0)
+        {
+            Popup.Show("Can't aggregate a food with 0 quantity", "Violation");
+            return;
+        }
+
+        creations.Add(new ConsumptionCreation
+        {
+            FoodId = consumption.FoodId,
+            Moment = DateTime.Parse($"{consumption.Moment:yyyy-MM-dd}T{selectedHour}:{selectedMinute}"),
+            Quantity = consumption.Quantity,
+            Name = consumption.Name,
+            MeasurementUnit = selectedMeasurementUnit,
+        });
+    }
+
+    private void RemoveFood(ConsumptionCreation creation)
+    {
+        creations.RemoveAll(c => c.Name == creation.Name);
     }
 }

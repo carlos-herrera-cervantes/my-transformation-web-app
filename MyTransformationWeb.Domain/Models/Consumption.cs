@@ -12,6 +12,12 @@ public class ConsumptionCreation
 
     [JsonProperty("moment")]
     public DateTime Moment { get; set; }
+
+    [JsonIgnore]
+    public string Name { get; set; }
+
+    [JsonIgnore]
+    public string MeasurementUnit { get; set; }
 }
 
 public class Consumption
