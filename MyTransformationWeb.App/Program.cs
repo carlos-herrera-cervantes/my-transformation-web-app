@@ -25,6 +25,7 @@ builder.Services.AddSingleton<IFoodService, FoodService>();
 builder.Services.AddSingleton<IConsumptionService, ConsumptionService>();
 builder.Services.AddSingleton(typeof(IPaginationService<>), typeof(SimplePagination<>));
 builder.Services.AddSingleton<IConsumptionResultService, ConsumptionResultService>();
+builder.Services.AddSingleton<ISessionService, SessionService>();
 
 var app = builder.Build();
 

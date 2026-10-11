@@ -4,6 +4,7 @@
 @inject IPaginationService<Consumption> paginationService
 @inject ILogger<List> logger
 @inject IConsumptionResultService consumptionResultService
+@inject ISessionService sessionService
 
 <div class="row">
     <Nav></Nav>
@@ -107,6 +108,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await sessionService.ValidateSession();
+
         var start = DateTime.Today;
         var pageable = new Pageable
         {
