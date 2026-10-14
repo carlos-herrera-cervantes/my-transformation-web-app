@@ -85,6 +85,11 @@
 
     private async Task HandleValidSubmitAsync()
     {
+        if (food.MeasurementUnit is null)
+        {
+            food.MeasurementUnit = measurementUnits.FirstOrDefault();
+        }
+
         await foodService.CreateAsync(food);
         navigationManager.NavigateTo("/food/list");
     }
