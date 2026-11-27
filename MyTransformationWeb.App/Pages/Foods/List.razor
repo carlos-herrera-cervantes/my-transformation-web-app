@@ -1,4 +1,5 @@
 @page "/food/list"
+@attribute [Authorize]
 @inject IFoodService foodService
 @inject ILogger<List> logger
 @inject IPaginationService<Food> paginationService

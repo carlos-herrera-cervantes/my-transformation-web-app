@@ -1,5 +1,5 @@
 using Blazored.LocalStorage;
-
+using Microsoft.AspNetCore.Components.Authorization;
 using MyTransformationWeb.Domain.Config;
 using MyTransformationWeb.Services.Calories;
 using MyTransformationWeb.Services.Core;
@@ -9,6 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddScoped<CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(provider =>
+    provider.GetRequiredService<CustomAuthenticationStateProvider>());
 builder.Services.AddAuthenticationCore();
 builder.Services.AddHttpClient("my-transformation-core", c =>
 {

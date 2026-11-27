@@ -1,6 +1,6 @@
 @page "/users/{UserId}/consumptions"
+@attribute [Authorize]
 @inject IConsumptionService consumptionService
-@inject ILocalStorageService LocalStorage
 @inject IPaginationService<Consumption> paginationService
 @inject ILogger<List> logger
 @inject IConsumptionResultService consumptionResultService
